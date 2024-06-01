@@ -2,12 +2,77 @@ import pygame
 import sys
 import random
 
+board = [['' for _ in range(3)] for _ in range(3)]
+
+def check_winner():
+    # 행, 열, 대각선 검사
+    for row in range(3):
+        if board[row][0] == board[row][1] == board[row][2] != '':
+            return board[row][0]
+    for col in range(3):
+        if board[0][col] == board[1][col] == board[2][col] != '':
+            return board[0][col]
+    if board[0][0] == board[1][1] == board[2][2] != '':
+        return board[0][0]
+    if board[0][2] == board[1][1] == board[2][0] != '':
+        return board[0][2]
+    return None
+
+def is_board_full():
+    for row in board:
+        if '' in row:
+            return False
+    return True
+
 def level1(board):
     # 가능한 모든 빈 칸의 위치를 찾습니다.
     available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
     # 가능한 위치 중에서 랜덤하게 선택합니다.
     row, col = random.choice(available_positions)
     return row, col
+
+def create_random_weight():
+    weight=[[random.uniform(0,1) for i in range(3)] for j in range(3)]
+    weightsum=sum(sum(row) for row in weight)
+    result_weight = [[element/weightsum for element in row] for row in weight]
+    return result_weight
+
+def average_weights(weight0, weight1):
+    average = [[(weight0[row][col] + weight1[row][col]) / 2 for col in range(len(weight0[row]))] for row in range(len(weight0))]
+    return average
+
+def playTTTself(weight0, weight1,current,board):
+    def make_move(board, row, col, current):
+        board[row][col] = current
+    current_weight = weight0 if current == 'O' else weight1
+    best_score = -1
+    best_move = None
+
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                if current_weight[row][col] > best_score:
+                    best_score = current_weight[row][col]
+                    best_move = (row, col)
+
+    if best_move:
+        make_move(board, best_move[0], best_move[1], current)
+        winner = check_winner()
+        if winner:
+            return weight0 if winner == 'O' else weight1
+        elif is_board_full():
+            return average_weights(weight0, weight1) # 비긴 경우
+        else:
+            next_player = 'X' if current == 'O' else 'O'
+            return playTTTself(weight0, weight1, next_player, board)
+    else:
+        return None #error 
+
+weight0=create_random_weight()
+weight1=create_random_weight()
+board = [['' for _ in range(3)] for _ in range(3)]
+playTTTself(weight0, weight1,'O',board)
+
 
 # 색상 정의
 WHITE = (255, 255, 255)
@@ -128,25 +193,6 @@ else:
     current_player = 'O'
 game_over = False
 
-def check_winner():
-    # 행, 열, 대각선 검사
-    for row in range(3):
-        if board[row][0] == board[row][1] == board[row][2] != '':
-            return board[row][0]
-    for col in range(3):
-        if board[0][col] == board[1][col] == board[2][col] != '':
-            return board[0][col]
-    if board[0][0] == board[1][1] == board[2][2] != '':
-        return board[0][0]
-    if board[0][2] == board[1][1] == board[2][0] != '':
-        return board[0][2]
-    return None
-
-def is_board_full():
-    for row in board:
-        if '' in row:
-            return False
-    return True
 
 def reset_game():
     global board, current_player, game_over
