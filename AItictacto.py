@@ -129,6 +129,8 @@ while True:
             x, y = event.pos
             col = x // cell_size
             row = y // cell_size
+            if(col>=3):
+                continue
             if board[row][col] == '':
                 board[row][col] = current_player
                 winner = check_winner()
