@@ -4,6 +4,9 @@ import random
 
 board = [['' for _ in range(3)] for _ in range(3)]
 
+def make_move(row, col, current):
+    board[row][col] = current
+
 def check_winner():
     # 행, 열, 대각선 검사
     for row in range(3):
@@ -42,8 +45,6 @@ def average_weights(weight0, weight1):
     return average
 
 def playTTTself(weight0, weight1,current,board):
-    def make_move(board, row, col, current):
-        board[row][col] = current
     current_weight = weight0 if current == 'O' else weight1
     best_score = -1
     best_move = None
@@ -56,7 +57,7 @@ def playTTTself(weight0, weight1,current,board):
                     best_move = (row, col)
 
     if best_move:
-        make_move(board, best_move[0], best_move[1], current)
+        make_move(best_move[0], best_move[1], current)
         winner = check_winner()
         if winner:
             return weight0 if winner == 'O' else weight1
