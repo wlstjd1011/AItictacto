@@ -2,6 +2,13 @@ import pygame
 import sys
 import random
 
+def computer_move(board):
+    # 가능한 모든 빈 칸의 위치를 찾습니다.
+    available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
+    # 가능한 위치 중에서 랜덤하게 선택합니다.
+    row, col = random.choice(available_positions)
+    return row, col
+
 # 색상 정의
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -134,16 +141,20 @@ while True:
         # 컴퓨터가 수를 둘 차례
         if not game_over and current_player == 'X':
             available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
-            if available_positions:
-                row, col = random.choice(available_positions)
-                board[row][col] = current_player
-                winner = check_winner()
-                if winner:
-                    game_over = True
-                elif is_board_full():
-                    game_over = True
-                else:
-                    current_player = 'X' if current_player == 'O' else 'O'
+            row, col = computer_move(board)
+            board[row][col] = current_player
+            winner = check_winner()
+            if winner:
+                game_over = True
+            elif is_board_full():
+                game_over = True
+            else:
+                current_player = 'X' if current_player == 'O' else 'O'
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                reset_game()
+            if event.key == pygame.K_q:
+                exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 reset_game()
