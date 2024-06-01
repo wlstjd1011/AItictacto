@@ -4,7 +4,7 @@ import random
 
 board = [['' for _ in range(3)] for _ in range(3)]
 
-def make_move(row, col, current):
+def make_move(row, col, current,board):
     board[row][col] = current
 
 def check_winner():
@@ -41,10 +41,10 @@ def create_random_weight():
     return result_weight
 
 def average_weights(weight0, weight1):
-    average = [[(weight0[row][col] + weight1[row][col]) / 2 for col in range(len(weight0[row]))] for row in range(len(weight0))]
+    average = [[(weight0[row][col] + weight1[row][col]) / 2 for col in range(3)] for row in range(3)]
     return average
 
-def playTTTself(weight0, weight1,current,board):
+def playTTTself_noob(weight0, weight1,current,board):
     current_weight = weight0 if current == 'O' else weight1
     best_score = -1
     best_move = None
@@ -57,23 +57,36 @@ def playTTTself(weight0, weight1,current,board):
                     best_move = (row, col)
 
     if best_move:
-        make_move(best_move[0], best_move[1], current)
+        make_move(best_move[0], best_move[1], current,board)
         winner = check_winner()
         if winner:
             return weight0 if winner == 'O' else weight1
-        elif is_board_full():
-            return average_weights(weight0, weight1) # 비긴 경우
         else:
             next_player = 'X' if current == 'O' else 'O'
-            return playTTTself(weight0, weight1, next_player, board)
+            return playTTTself_noob(weight0, weight1, next_player,board)
     else:
-        return None #error 
+        return average_weights(weight0, weight1)
 
-weight0=create_random_weight()
-weight1=create_random_weight()
-board = [['' for _ in range(3)] for _ in range(3)]
-playTTTself(weight0, weight1,'O',board)
+def train_noob():
+    weight10240=[[create_random_weight() for k in range(1024)] for l in range(10)]
+    for l in range(0,10):
+        k=1024
+        while(k>0):
+            k//=2
+            for j in range (0,k):
+                board = [['' for _ in range(3)] for _ in range(3)]
+                weight10240[l][j]=average_weights(playTTTself_noob(weight10240[l][2*j],weight10240[l][2*j+1],'O',board),
+                                                  playTTTself_noob(weight10240[l][2*j+1],weight10240[l][2*j],'O',board))
+    weight=[[0 for i in range(3)] for j in range(3)]
+    for i in range(3):
+        for j in range(3):
+            for l in range(10):
+                weight[i][j]+=weight10240[l][0][i][j]
+            weight[i][j]/=10
+    return weight
+        
 
+print(train_noob())
 
 # 색상 정의
 WHITE = (255, 255, 255)
