@@ -130,14 +130,16 @@ def level3(board):
                     best_move = (row, col)
     return best_move
 
+# 학습을 위한 board들 준비
 level4boards=generate_alltictactoe_boards()
+level5boards=generate_alltictactoe_boards()
 
-def playTTTself_play_random(weight, current, board, history=None):
+
+def playTTTself_play_random(weight, current, board,allboards, history=None):
     if history is None:
         history = []
     best_score = 0
     best_move = None
-    global level4boards
 
     for row in range(3):
         for col in range(3):
@@ -151,32 +153,31 @@ def playTTTself_play_random(weight, current, board, history=None):
         history.append(tuple(tuple(row) for row in board))  # 현재 보드 상태를 기록
         winner = check_winner(board)
         if winner:
-            update_level4boards(history, winner)
+            update_allboards(history, winner,allboards)
         else:
             next_player = 'X' if current == 'O' else 'O'
-            playTTTself_play_random(weight, next_player, board, history)
+            playTTTself_play_random(weight, next_player, board,allboards, history)
     else:
         return
 
-def update_level4boards(history, winner):
-    # tictactoe의 모든 단계의 보드 상태를 추적하여 level4boards 값을 업데이트
-    global level4boards
+def update_allboards(history, winner,allboards):
+    # tictactoe의 모든 단계의 보드 상태를 추적하여 allboards 값을 업데이트
     for board_state in history:
         if winner == 'O':
-            level4boards[board_state] += 1
+            allboards[board_state] += 1
         elif winner == 'X':
-            level4boards[board_state] -= 1
+            allboards[board_state] -= 1
 
-def train_play_random():
+def train_play_random(allboards):
     for i in range(0,100000):
         weight=create_random_weight()
         board = [['' for _ in range(3)] for _ in range(3)]
-        playTTTself_play_random(weight, 'O', board)
-        playTTTself_play_random(weight, 'X', board)
+        playTTTself_play_random(weight, 'O', board,allboards)
+        playTTTself_play_random(weight, 'X', board,allboards)
         if(i%10000==0):
             print(i)
 
-train_play_random()
+train_play_random(level4boards)
 
 def level4(board,current):
     global level4boards
@@ -200,6 +201,27 @@ def level4(board,current):
                 board[row][col] = ''  # 보드 상태 복원
     return best_move
 
+def level5(board,current):
+    global level5boards
+    best_score = float('-inf') if current == 'O' else float('inf')
+    best_move = None
+        # 가능한 모든 움직임을 시뮬레이션하여 최선의 움직임을 찾음
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                board[row][col] = current
+                board_tuple = tuple(tuple(r) for r in board)
+                score = level5boards[board_tuple]
+                if current == 'O':
+                    if score > best_score:
+                        best_score = score
+                        best_move = (row, col)
+                else:
+                    if score < best_score:
+                        best_score = score
+                        best_move = (row, col)
+                board[row][col] = ''  # 보드 상태 복원
+    return best_move
 
 # 색상 정의
 WHITE = (255, 255, 255)
