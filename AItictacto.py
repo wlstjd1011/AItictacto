@@ -80,8 +80,10 @@ def train_noob(): # can't training. Cause random computer almost always draw
             k//=2
             for j in range (0,k):
                 board = [['' for _ in range(3)] for _ in range(3)]
-                weight10240[l][j]=average_weights(playTTTself_noob(weight10240[l][2*j],weight10240[l][2*j+1],'O',board),
-                                                  playTTTself_noob(weight10240[l][2*j+1],weight10240[l][2*j],'O',board))
+                weight0=playTTTself_noob(weight10240[l][2*j],weight10240[l][2*j+1],'O',board)
+                board = [['' for _ in range(3)] for _ in range(3)]
+                weight1=playTTTself_noob(weight10240[l][2*j+1],weight10240[l][2*j],'O',board)
+                weight10240[l][j]=average_weights(weight0,weight1)
     weight=[[0 for i in range(3)] for j in range(3)]
     for i in range(3):
         for j in range(3):
@@ -89,18 +91,77 @@ def train_noob(): # can't training. Cause random computer almost always draw
                 weight[i][j]+=weight10240[l][0][i][j]
             weight[i][j]/=10
     return weight
-        
 
-print(train_noob())
-"""
+def playTTTself_canfinish(weight0, weight1,current,board):
+    current_weight = weight0 if current == 'O' else weight1
+    best_score = -1
+    best_move = None
+
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                board[row][col] = current
+                if check_winner() == current:
+                    board[row][col] = ''  # 보드 상태 복원
+                    return weight0 if current == 'O' else weight1  # 즉시 승리할 수 있는 경우
+                board[row][col] = ''  # 보드 상태 복원
+
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                if current_weight[row][col] > best_score:
+                    best_score = current_weight[row][col]
+                    best_move = (row, col)
+
+    if best_move:
+        make_move(best_move[0], best_move[1], current,board)
+        winner = check_winner()
+        if winner:
+            global notdraw
+            notdraw+=1
+            return weight0 if winner == 'O' else weight1
+        else:
+            next_player = 'X' if current == 'O' else 'O'
+            return playTTTself_canfinish(weight0, weight1, next_player,board)
+    else:
+        global draw
+        draw+=1
+        return average_weights(weight0, weight1)
+        
+def train_canfinish(): # can't training. Cause random computer almost always draw
+    weight10240=[[create_random_weight() for k in range(1024)] for l in range(10)]
+    for l in range(0,10):
+        k=1024
+        while(k>0):
+            k//=2
+            for j in range (0,k):
+                board = [['' for _ in range(3)] for _ in range(3)]
+                weight0=playTTTself_canfinish(weight10240[l][2*j],weight10240[l][2*j+1],'O',board)
+                board = [['' for _ in range(3)] for _ in range(3)]
+                weight1=playTTTself_canfinish(weight10240[l][2*j+1],weight10240[l][2*j],'O',board)
+                weight10240[l][j]=average_weights(weight0,weight1)
+    weight=[[0 for i in range(3)] for j in range(3)]
+    for i in range(3):
+        for j in range(3):
+            for l in range(10):
+                weight[i][j]+=weight10240[l][0][i][j]
+            weight[i][j]/=10
+    return weight
+
+#print(train_noob())
+print(train_canfinish())
+
 weight0=[[1,100,1],[1,100,1],[1,100,1]]
 weight1=[[1,1,100],[1,1,100],[1,1,100]]
 board = [['' for _ in range(3)] for _ in range(3)]
 print(playTTTself_noob(weight0, weight1,'O',board))
+board = [['' for _ in range(3)] for _ in range(3)]
 print(playTTTself_noob(weight1, weight0,'O',board))
-"""
+
 print(draw)
 print(notdraw)
+
+
 
 # 색상 정의
 WHITE = (255, 255, 255)
