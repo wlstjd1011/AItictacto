@@ -10,7 +10,10 @@ def generate_alltictactoe_boards():
     symbols = ['O', 'X', '']
     all_comb = list(itertools.product(symbols, repeat=9))
     all_boards={}
-    all_boards = {tuple(tuple(board[i:i+3]) for i in range(0, 9, 3)): 0 for board in all_comb}
+    for first in ['O', 'X']:
+        for comb in all_comb:
+            board_tuple = tuple(tuple(comb[i:i+3]) for i in range(0, 9, 3))
+            all_boards[(board_tuple, first)] = 0
     return all_boards
 
 def make_move(row, col, current,board):
@@ -135,7 +138,7 @@ level4boards=generate_alltictactoe_boards()
 level5boards=generate_alltictactoe_boards()
 
 
-def playTTTself_play_random(weight, current, board,allboards, history=None):
+def playTTTself_play_random(first, weight, current, board,allboards, history=None):
     if history is None:
         history = []
     best_score = 0
@@ -153,34 +156,34 @@ def playTTTself_play_random(weight, current, board,allboards, history=None):
         history.append(tuple(tuple(row) for row in board))  # 현재 보드 상태를 기록
         winner = check_winner(board)
         if winner:
-            update_allboards(history, winner,allboards)
+            update_allboards(first,history, winner,allboards)
         else:
             next_player = 'X' if current == 'O' else 'O'
-            playTTTself_play_random(weight, next_player, board,allboards, history)
+            playTTTself_play_random(first,weight, next_player, board,allboards, history)
     else:
         return
 
-def update_allboards(history, winner,allboards):
+def update_allboards(first,history, winner,allboards):
     # tictactoe의 모든 단계의 보드 상태를 추적하여 allboards 값을 업데이트
     for board_state in history:
         if winner == 'O':
-            allboards[board_state] += 1
+            allboards[board_state,first] += 1
         elif winner == 'X':
-            allboards[board_state] -= 1
+            allboards[board_state,first] -= 1
 
 def train_play_random(allboards):
     for i in range(0,100000):
         weight=create_random_weight()
         board = [['' for _ in range(3)] for _ in range(3)]
-        playTTTself_play_random(weight, 'O', board,allboards)
+        playTTTself_play_random('O',weight, 'O', board,allboards)
         board = [['' for _ in range(3)] for _ in range(3)]
-        playTTTself_play_random(weight, 'X', board,allboards)
+        playTTTself_play_random('X',weight, 'X', board,allboards)
         if(i%10000==0):
             print(i)
 
 train_play_random(level4boards)
 
-def level4(board,current):
+def level4(first,board,current):
     global level4boards
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
@@ -190,7 +193,7 @@ def level4(board,current):
             if board[row][col] == '':
                 board[row][col] = current
                 board_tuple = tuple(tuple(r) for r in board)
-                score = level4boards[board_tuple]
+                score = level4boards[board_tuple,first]
                 if current == 'O':
                     if score > best_score:
                         best_score = score
@@ -212,7 +215,7 @@ def level5(board,current):
             if board[row][col] == '':
                 board[row][col] = current
                 board_tuple = tuple(tuple(r) for r in board)
-                score = level5boards[board_tuple]
+                score = level5boards[board_tuple,first]
                 if current == 'O':
                     if score > best_score:
                         best_score = score
@@ -244,6 +247,7 @@ pygame.display.set_caption('Tic Tac Toe')
 # 게임 보드 초기화
 board = [['' for _ in range(3)] for _ in range(3)]
 current_player = 'O'
+first='O'
 game_over = False
 show_score = True  # 점수판 표시 여부를 결정하는 변수
 score_message = "Press 'S' to show/hide scoreboard."
@@ -274,7 +278,7 @@ def draw_board():
         screen.blit(score_text, (size + 20, 20))  # "Board Scores" 텍스트 위치 지정
 
         board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
-        score = level4boards[board_tuple]  # 현재 보드 상태의 점수 가져오기
+        score = level4boards[board_tuple,first]  # 현재 보드 상태의 점수 가져오기
         score_display = small_font.render(str(score), True, BLACK)  # 점수를 텍스트로 변환
         screen.blit(score_display, (size + 20, 60))  # 점수 텍스트 위치 지정
 
@@ -400,8 +404,10 @@ while user_choice not in ['U', 'C'] and player==1:
 
 board = [['' for _ in range(3)] for _ in range(3)]
 if user_choice == 'C':
+    first='X'
     current_player = 'X'
 else:
+    first='O'
     current_player = 'O'
 game_over = False
 
@@ -448,7 +454,7 @@ while True:
                 elif(level==3):
                     row, col = level3(board)
                 elif(level==4):
-                    row, col = level4(board,current_player)
+                    row, col = level4(first,board,current_player)
                 board[row][col] = current_player
                 winner = check_winner(board)
                 if winner:
