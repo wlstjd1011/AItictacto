@@ -19,7 +19,7 @@ print(allboard)
 def make_move(row, col, current,board):
     board[row][col] = current
 
-def check_winner():
+def check_winner(board):
     # 행, 열, 대각선 검사
     for row in range(3):
         if board[row][0] == board[row][1] == board[row][2] != '':
@@ -33,7 +33,7 @@ def check_winner():
         return board[0][2]
     return None
 
-def is_board_full():
+def is_board_full(board):
     for row in board:
         if '' in row:
             return False
@@ -54,7 +54,7 @@ def level2(board,current):
         for col in range(3):
             if board[row][col] == '':
                 board[row][col] = current
-                if check_winner() == current:
+                if check_winner(board) == current:
                     board[row][col] = ''  # 보드 상태 복원
                     return row, col
                 board[row][col] = ''  # 보드 상태 복원
@@ -247,10 +247,10 @@ while True:
                     continue
                 if board[row][col] == '':
                     board[row][col] = current_player
-                    winner = check_winner()
+                    winner = check_winner(board)
                     if winner:
                         game_over = True
-                    elif is_board_full():
+                    elif is_board_full(board):
                         game_over = True
                     else:
                         current_player = 'O' if current_player == 'X' else 'X'
@@ -262,10 +262,10 @@ while True:
                 elif(level==2):
                     row, col = level2(board,current_player)
                 board[row][col] = current_player
-                winner = check_winner()
+                winner = check_winner(board)
                 if winner:
                     game_over = True
-                elif is_board_full():
+                elif is_board_full(board):
                     game_over = True
                 else:
                     current_player = 'X' if current_player == 'O' else 'O'
@@ -287,10 +287,10 @@ while True:
                         continue
                     if board[row][col] == '':
                         board[row][col] = current_player
-                        winner = check_winner()
+                        winner = check_winner(board)
                         if winner:
                             game_over = True
-                        elif is_board_full():
+                        elif is_board_full(board):
                             game_over = True
                         else:
                             current_player = 'O' if current_player == 'X' else 'X'
@@ -303,7 +303,7 @@ while True:
 
     draw_board()
     if game_over:
-        winner = check_winner()
+        winner = check_winner(board)
         if winner:
             text = small_font.render(f'{winner} wins! Press R to restart, Press Q to exit', True, BLACK)
         else:

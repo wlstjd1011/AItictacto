@@ -21,7 +21,7 @@ def check_winner(board):
         return board[0][2]
     return None
 
-def is_board_full():
+def is_board_full(board):
     for row in board:
         if '' in row:
             return False
@@ -312,7 +312,7 @@ while True:
                     winner = check_winner(board)
                     if winner:
                         game_over = True
-                    elif is_board_full():
+                    elif is_board_full(board):
                         game_over = True
                     else:
                         current_player = 'O' if current_player == 'X' else 'X'
@@ -324,7 +324,7 @@ while True:
                 winner = check_winner(board)
                 if winner:
                     game_over = True
-                elif is_board_full():
+                elif is_board_full(board):
                     game_over = True
                 else:
                     current_player = 'X' if current_player == 'O' else 'O'
@@ -349,7 +349,7 @@ while True:
                         winner = check_winner(board)
                         if winner:
                             game_over = True
-                        elif is_board_full():
+                        elif is_board_full(board):
                             game_over = True
                         else:
                             current_player = 'O' if current_player == 'X' else 'X'
