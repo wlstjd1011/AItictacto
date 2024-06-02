@@ -130,14 +130,14 @@ def level3(board):
                     best_move = (row, col)
     return best_move
 
-allboards=generate_alltictactoe_boards()
+level4boards=generate_alltictactoe_boards()
 
 def playTTTself_play_random(weight, current, board, history=None):
     if history is None:
         history = []
     best_score = 0
     best_move = None
-    global allboards
+    global level4boards
 
     for row in range(3):
         for col in range(3):
@@ -151,21 +151,21 @@ def playTTTself_play_random(weight, current, board, history=None):
         history.append(tuple(tuple(row) for row in board))  # 현재 보드 상태를 기록
         winner = check_winner(board)
         if winner:
-            update_allboards(history, winner)
+            update_level4boards(history, winner)
         else:
             next_player = 'X' if current == 'O' else 'O'
             playTTTself_play_random(weight, next_player, board, history)
     else:
         return
 
-def update_allboards(history, winner):
-    # tictactoe의 모든 단계의 보드 상태를 추적하여 allboards 값을 업데이트
-    global allboards
+def update_level4boards(history, winner):
+    # tictactoe의 모든 단계의 보드 상태를 추적하여 level4boards 값을 업데이트
+    global level4boards
     for board_state in history:
         if winner == 'O':
-            allboards[board_state] += 1
+            level4boards[board_state] += 1
         elif winner == 'X':
-            allboards[board_state] -= 1
+            level4boards[board_state] -= 1
 
 def train_play_random():
     for i in range(0,100000):
@@ -179,7 +179,7 @@ def train_play_random():
 train_play_random()
 
 def level4(board,current):
-    global allboards
+    global level4boards
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
         # 가능한 모든 움직임을 시뮬레이션하여 최선의 움직임을 찾음
@@ -188,7 +188,7 @@ def level4(board,current):
             if board[row][col] == '':
                 board[row][col] = current
                 board_tuple = tuple(tuple(r) for r in board)
-                score = allboards[board_tuple]
+                score = level4boards[board_tuple]
                 if current == 'O':
                     if score > best_score:
                         best_score = score
@@ -251,7 +251,7 @@ def draw_board():
         screen.blit(score_text, (size + 20, 20))  # "Board Scores" 텍스트 위치 지정
 
         board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
-        score = allboards[board_tuple]  # 현재 보드 상태의 점수 가져오기
+        score = level4boards[board_tuple]  # 현재 보드 상태의 점수 가져오기
         score_display = small_font.render(str(score), True, BLACK)  # 점수를 텍스트로 변환
         screen.blit(score_display, (size + 20, 60))  # 점수 텍스트 위치 지정
 
