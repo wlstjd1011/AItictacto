@@ -13,9 +13,6 @@ def generate_alltictactoe_boards():
     all_boards = {tuple(tuple(board[i:i+3]) for i in range(0, 9, 3)): 0 for board in all_comb}
     return all_boards
 
-allboard=generate_alltictactoe_boards()
-print(allboard)
-
 def make_move(row, col, current,board):
     board[row][col] = current
 
@@ -74,10 +71,6 @@ def average_weights(weight0, weight1):
     return average
 
 def playTTTself_noob(weight0, weight1,current,board):
-    print('now')
-    print(board[0])
-    print(board[1])
-    print(board[2])
     current_weight = weight0 if current == 'O' else weight1
     best_score = -1
     best_move = None
@@ -95,7 +88,6 @@ def playTTTself_noob(weight0, weight1,current,board):
         if winner:
             global notdraw
             notdraw+=1
-            print('win!!')
             return weight0 if winner == 'O' else weight1
         else:
             next_player = 'X' if current == 'O' else 'O'
@@ -106,9 +98,9 @@ def playTTTself_noob(weight0, weight1,current,board):
         return average_weights(weight0, weight1)
 
 def train_noob(): # can't training. Cause random computer almost always draw
-    weight10240=[[create_random_weight() for k in range(64)] for l in range(10)]
+    weight10240=[[create_random_weight() for k in range(1024)] for l in range(10)]
     for l in range(0,10):
-        k=64
+        k=1024
         while(k>0):
             k//=2
             for j in range (0,k):
@@ -125,7 +117,9 @@ def train_noob(): # can't training. Cause random computer almost always draw
             weight[i][j]/=10
     return weight
 
-print(train_noob())
+level3weight=train_noob()
+print(level3weight)
+
 """
 weight0=[[1,100,1],[1,100,1],[1,100,1]]
 weight1=[[1,1,100],[1,1,100],[1,1,100]]
@@ -136,6 +130,19 @@ print(playTTTself_noob(weight1, weight0,'O',board))
 """
 print(draw)
 print(notdraw)
+
+def level3(board):
+    best_score = -1
+    best_move = None
+
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                if level3weight[row][col] > best_score:
+                    best_score = level3weight[row][col]
+                    best_move = (row, col)
+    return best_move
+
 
 # 색상 정의
 WHITE = (255, 255, 255)
@@ -214,6 +221,9 @@ def selectlevel():
     comp_text = small_font.render("Press 2 for level2", True, BLACK)
     comp_rect = comp_text.get_rect(center=(size // 2, 350))
     screen.blit(comp_text, comp_rect)
+    comp_text = small_font.render("Press 3 for level3", True, BLACK)
+    comp_rect = comp_text.get_rect(center=(size // 2, 400))
+    screen.blit(comp_text, comp_rect)
 
 def selectplayer():
     screen.fill(WHITE)
@@ -259,6 +269,8 @@ while level==0 and player==1:
                 level=1
             elif event.key == pygame.K_2 or event.key == pygame.K_KP2:
                 level=2
+            elif event.key == pygame.K_3 or event.key == pygame.K_KP3:
+                level=3
             elif event.key == pygame.K_q:
                 pygame.quit()
                 sys.exit()
@@ -296,7 +308,10 @@ game_over = False
 def reset_game():
     global board, current_player, game_over
     board = [['' for _ in range(3)] for _ in range(3)]
-    current_player = 'O'
+    if user_choice == 'C':
+        current_player = 'X'
+    else:
+        current_player = 'O'
     game_over = False
 
 # 게임 루프
@@ -328,6 +343,8 @@ while True:
                     row, col = level1(board)
                 elif(level==2):
                     row, col = level2(board,current_player)
+                elif(level==3):
+                    row, col = level3(board)
                 board[row][col] = current_player
                 winner = check_winner(board)
                 if winner:
