@@ -61,11 +61,13 @@ def level2(board,current):
 
 def create_random_weight():
     weight=[[random.uniform(0,1) for i in range(3)] for j in range(3)]
+    return weight
+
+def normalization_weight(weight):
     weightsum=sum(sum(row) for row in weight)
     result_weight = [[element/weightsum for element in row] for row in weight]
     return result_weight
-draw=0
-notdraw=0
+
 def average_weights(weight0, weight1):
     average = [[(weight0[row][col] + weight1[row][col]) / 2 for col in range(3)] for row in range(3)]
     return average
@@ -86,19 +88,15 @@ def playTTTself_noob(weight0, weight1,current,board):
         make_move(best_move[0], best_move[1], current,board)
         winner = check_winner(board)
         if winner:
-            global notdraw
-            notdraw+=1
             return weight0 if winner == 'O' else weight1
         else:
             next_player = 'X' if current == 'O' else 'O'
             return playTTTself_noob(weight0, weight1, next_player,board)
     else:
-        global draw
-        draw+=1
         return average_weights(weight0, weight1) 
 
 def train_noob(): # can't training. Cause random computer almost always draw
-    weight10240=[[create_random_weight() for k in range(1024)] for l in range(10)]
+    weight10240=[[normalization_weight(create_random_weight()) for k in range(1024)] for l in range(10)]
     for l in range(0,10):
         k=1024
         while(k>0):
@@ -153,15 +151,12 @@ def playTTTself_play_random(weight, current, board, history=None):
         history.append(tuple(tuple(row) for row in board))  # 현재 보드 상태를 기록
         winner = check_winner(board)
         if winner:
-            global notdraw
-            notdraw += 1
             update_allboards(history, winner)
         else:
             next_player = 'X' if current == 'O' else 'O'
             playTTTself_play_random(weight, next_player, board, history)
     else:
-        global draw
-        draw += 1
+        return
 
 def update_allboards(history, winner):
     # tictactoe의 모든 단계의 보드 상태를 추적하여 allboards 값을 업데이트
