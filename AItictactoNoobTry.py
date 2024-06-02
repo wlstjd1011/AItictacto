@@ -7,7 +7,7 @@ board = [['' for _ in range(3)] for _ in range(3)]
 def make_move(row, col, current,board):
     board[row][col] = current
 
-def check_winner():
+def check_winner(board):
     # 행, 열, 대각선 검사
     for row in range(3):
         if board[row][0] == board[row][1] == board[row][2] != '':
@@ -46,6 +46,10 @@ def average_weights(weight0, weight1):
     return average
 
 def playTTTself_noob(weight0, weight1,current,board):
+    print('now')
+    print(board[0])
+    print(board[1])
+    print(board[2])
     current_weight = weight0 if current == 'O' else weight1
     best_score = -1
     best_move = None
@@ -59,10 +63,11 @@ def playTTTself_noob(weight0, weight1,current,board):
 
     if best_move:
         make_move(best_move[0], best_move[1], current,board)
-        winner = check_winner()
+        winner = check_winner(board)
         if winner:
             global notdraw
             notdraw+=1
+            print('win!!')
             return weight0 if winner == 'O' else weight1
         else:
             next_player = 'X' if current == 'O' else 'O'
@@ -73,9 +78,9 @@ def playTTTself_noob(weight0, weight1,current,board):
         return average_weights(weight0, weight1)
 
 def train_noob(): # can't training. Cause random computer almost always draw
-    weight10240=[[create_random_weight() for k in range(1024)] for l in range(10)]
+    weight10240=[[create_random_weight() for k in range(64)] for l in range(10)]
     for l in range(0,10):
-        k=1024
+        k=64
         while(k>0):
             k//=2
             for j in range (0,k):
@@ -101,7 +106,7 @@ def playTTTself_canfinish(weight0, weight1,current,board):
         for col in range(3):
             if board[row][col] == '':
                 board[row][col] = current
-                if check_winner() == current:
+                if check_winner(board) == current:
                     board[row][col] = ''  # 보드 상태 복원
                     return weight0 if current == 'O' else weight1  # 즉시 승리할 수 있는 경우
                 board[row][col] = ''  # 보드 상태 복원
@@ -115,7 +120,7 @@ def playTTTself_canfinish(weight0, weight1,current,board):
 
     if best_move:
         make_move(best_move[0], best_move[1], current,board)
-        winner = check_winner()
+        winner = check_winner(board)
         if winner:
             global notdraw
             notdraw+=1
@@ -148,8 +153,8 @@ def train_canfinish(): # can't training. Cause random computer almost always dra
             weight[i][j]/=10
     return weight
 
-#print(train_noob())
-print(train_canfinish())
+print(train_noob())
+#print(train_canfinish())
 
 weight0=[[1,100,1],[1,100,1],[1,100,1]]
 weight1=[[1,1,100],[1,1,100],[1,1,100]]
@@ -304,7 +309,7 @@ while True:
                     continue
                 if board[row][col] == '':
                     board[row][col] = current_player
-                    winner = check_winner()
+                    winner = check_winner(board)
                     if winner:
                         game_over = True
                     elif is_board_full():
@@ -316,7 +321,7 @@ while True:
                 available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
                 row, col = level1(board)
                 board[row][col] = current_player
-                winner = check_winner()
+                winner = check_winner(board)
                 if winner:
                     game_over = True
                 elif is_board_full():
@@ -341,7 +346,7 @@ while True:
                         continue
                     if board[row][col] == '':
                         board[row][col] = current_player
-                        winner = check_winner()
+                        winner = check_winner(board)
                         if winner:
                             game_over = True
                         elif is_board_full():
@@ -357,7 +362,7 @@ while True:
 
     draw_board()
     if game_over:
-        winner = check_winner()
+        winner = check_winner(board)
         if winner:
             text = small_font.render(f'{winner} wins! Press R to restart, Press Q to exit', True, BLACK)
         else:

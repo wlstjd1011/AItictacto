@@ -1,8 +1,20 @@
 import pygame
 import sys
 import random
+import itertools
 
 board = [['' for _ in range(3)] for _ in range(3)]
+
+
+def generate_alltictactoe_boards():
+    symbols = ['O', 'X', '']
+    all_comb = list(itertools.product(symbols, repeat=9))
+    all_boards={}
+    all_boards = {tuple(tuple(board[i:i+3]) for i in range(0, 9, 3)): 0 for board in all_comb}
+    return all_boards
+
+allboard=generate_alltictactoe_boards()
+print(allboard)
 
 def make_move(row, col, current,board):
     board[row][col] = current
