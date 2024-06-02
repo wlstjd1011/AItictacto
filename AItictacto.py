@@ -49,7 +49,7 @@ def level1(board):
 def level2(board,current):
     # 가능한 모든 빈 칸의 위치를 찾습니다.
     available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
-    # 가능한 위치 중에서 랜덤하게 선택합니다.
+    # 당장 승리할 수 있다면, 승리합니다.
     for row in range(3):
         for col in range(3):
             if board[row][col] == '':
@@ -67,8 +67,75 @@ def create_random_weight():
     weightsum=sum(sum(row) for row in weight)
     result_weight = [[element/weightsum for element in row] for row in weight]
     return result_weight
+draw=0
+notdraw=0
+def average_weights(weight0, weight1):
+    average = [[(weight0[row][col] + weight1[row][col]) / 2 for col in range(3)] for row in range(3)]
+    return average
 
+def playTTTself_noob(weight0, weight1,current,board):
+    print('now')
+    print(board[0])
+    print(board[1])
+    print(board[2])
+    current_weight = weight0 if current == 'O' else weight1
+    best_score = -1
+    best_move = None
 
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                if current_weight[row][col] > best_score:
+                    best_score = current_weight[row][col]
+                    best_move = (row, col)
+
+    if best_move:
+        make_move(best_move[0], best_move[1], current,board)
+        winner = check_winner(board)
+        if winner:
+            global notdraw
+            notdraw+=1
+            print('win!!')
+            return weight0 if winner == 'O' else weight1
+        else:
+            next_player = 'X' if current == 'O' else 'O'
+            return playTTTself_noob(weight0, weight1, next_player,board)
+    else:
+        global draw
+        draw+=1
+        return average_weights(weight0, weight1)
+
+def train_noob(): # can't training. Cause random computer almost always draw
+    weight10240=[[create_random_weight() for k in range(64)] for l in range(10)]
+    for l in range(0,10):
+        k=64
+        while(k>0):
+            k//=2
+            for j in range (0,k):
+                board = [['' for _ in range(3)] for _ in range(3)]
+                weight0=playTTTself_noob(weight10240[l][2*j],weight10240[l][2*j+1],'O',board)
+                board = [['' for _ in range(3)] for _ in range(3)]
+                weight1=playTTTself_noob(weight10240[l][2*j+1],weight10240[l][2*j],'O',board)
+                weight10240[l][j]=average_weights(weight0,weight1)
+    weight=[[0 for i in range(3)] for j in range(3)]
+    for i in range(3):
+        for j in range(3):
+            for l in range(10):
+                weight[i][j]+=weight10240[l][0][i][j]
+            weight[i][j]/=10
+    return weight
+
+print(train_noob())
+"""
+weight0=[[1,100,1],[1,100,1],[1,100,1]]
+weight1=[[1,1,100],[1,1,100],[1,1,100]]
+board = [['' for _ in range(3)] for _ in range(3)]
+print(playTTTself_noob(weight0, weight1,'O',board))
+board = [['' for _ in range(3)] for _ in range(3)]
+print(playTTTself_noob(weight1, weight0,'O',board))
+"""
+print(draw)
+print(notdraw)
 
 # 색상 정의
 WHITE = (255, 255, 255)
