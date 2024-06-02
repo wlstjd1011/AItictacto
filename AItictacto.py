@@ -120,17 +120,6 @@ def train_noob(): # can't training. Cause random computer almost always draw
 level3weight=train_noob()
 print(level3weight)
 
-"""
-weight0=[[1,100,1],[1,100,1],[1,100,1]]
-weight1=[[1,1,100],[1,1,100],[1,1,100]]
-board = [['' for _ in range(3)] for _ in range(3)]
-print(playTTTself_noob(weight0, weight1,'O',board))
-board = [['' for _ in range(3)] for _ in range(3)]
-print(playTTTself_noob(weight1, weight0,'O',board))
-"""
-print(draw)
-print(notdraw)
-
 def level3(board):
     best_score = -1
     best_move = None
@@ -188,7 +177,7 @@ def train_play_random():
         weight=create_random_weight()
         board = [['' for _ in range(3)] for _ in range(3)]
         playTTTself_play_random(weight, 'O', board)
-        if(i%10000==0)
+        if(i%10000==0):
             print(i)
 
 train_play_random()
@@ -197,8 +186,6 @@ def level4(board,current):
     global allboards
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
-    print(board)
-    print(current)
         # 가능한 모든 움직임을 시뮬레이션하여 최선의 움직임을 찾음
     for row in range(3):
         for col in range(3):
@@ -206,7 +193,6 @@ def level4(board,current):
                 board[row][col] = current
                 board_tuple = tuple(tuple(r) for r in board)
                 score = allboards[board_tuple]
-                print(score)
                 if current == 'O':
                     if score > best_score:
                         best_score = score
