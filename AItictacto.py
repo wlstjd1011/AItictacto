@@ -34,6 +34,22 @@ def level1(board):
     row, col = random.choice(available_positions)
     return row, col
 
+def level2(board,current):
+    # 가능한 모든 빈 칸의 위치를 찾습니다.
+    available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
+    # 가능한 위치 중에서 랜덤하게 선택합니다.
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                board[row][col] = current
+                if check_winner() == current:
+                    board[row][col] = ''  # 보드 상태 복원
+                    return row, col
+                board[row][col] = ''  # 보드 상태 복원
+                
+    row, col = random.choice(available_positions)
+    return row, col
+
 def create_random_weight():
     weight=[[random.uniform(0,1) for i in range(3)] for j in range(3)]
     weightsum=sum(sum(row) for row in weight)
@@ -102,6 +118,24 @@ def selectfirst():
     comp_rect = comp_text.get_rect(center=(size // 2, 350))
     screen.blit(comp_text, comp_rect)
 
+def selectlevel():
+    screen.fill(WHITE)
+    # 게임 제목 표시
+    title_text = small_font.render("Tic Tac Toe", True, BLACK)
+    title_rect = title_text.get_rect(center=(size // 2, 100))
+    screen.blit(title_text, title_rect)
+    # 플레이어 수를 묻는 질문
+    who_first_text = small_font.render("Choose level", True, BLACK)
+    who_first_rect = who_first_text.get_rect(center=(size // 2, 200))
+    screen.blit(who_first_text, who_first_rect)
+    # 1명 또는 2명
+    user_text = small_font.render("Press 1 for vs level1", True, BLACK)
+    user_rect = user_text.get_rect(center=(size // 2, 300))
+    screen.blit(user_text, user_rect)
+    comp_text = small_font.render("Press 2 for level2", True, BLACK)
+    comp_rect = comp_text.get_rect(center=(size // 2, 350))
+    screen.blit(comp_text, comp_rect)
+
 def selectplayer():
     screen.fill(WHITE)
     # 게임 제목 표시
@@ -136,6 +170,24 @@ while player==0:
             sys.exit()
     selectplayer()
     pygame.display.flip()
+
+level=0
+
+while level==0 and player==1:
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+                level=1
+            elif event.key == pygame.K_2 or event.key == pygame.K_KP2:
+                level=2
+            elif event.key == pygame.K_q:
+                pygame.quit()
+                sys.exit()
+        elif event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+    selectlevel()
+    pygame.display.flip()  
 
 user_choice = ''
 while user_choice not in ['U', 'C'] and player==1:
@@ -193,7 +245,10 @@ while True:
             # 컴퓨터가 수를 둘 차례
             if not game_over and current_player == 'X':
                 available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
-                row, col = level1(board)
+                if(level==1):
+                    row, col = level1(board)
+                elif(level==2):
+                    row, col = level2(board,current_player)
                 board[row][col] = current_player
                 winner = check_winner()
                 if winner:
