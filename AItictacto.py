@@ -172,6 +172,7 @@ def train_play_random():
         weight=create_random_weight()
         board = [['' for _ in range(3)] for _ in range(3)]
         playTTTself_play_random(weight, 'O', board)
+        playTTTself_play_random(weight, 'X', board)
         if(i%10000==0):
             print(i)
 
