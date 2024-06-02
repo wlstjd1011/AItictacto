@@ -95,7 +95,7 @@ def playTTTself_noob(weight0, weight1,current,board):
     else:
         global draw
         draw+=1
-        return average_weights(weight0, weight1)
+        return average_weights(weight0, weight1) 
 
 def train_noob(): # can't training. Cause random computer almost always draw
     weight10240=[[create_random_weight() for k in range(1024)] for l in range(10)]
@@ -141,6 +141,81 @@ def level3(board):
                 if level3weight[row][col] > best_score:
                     best_score = level3weight[row][col]
                     best_move = (row, col)
+    return best_move
+
+allboards=generate_alltictactoe_boards()
+
+def playTTTself_play_random(weight, current, board, history=None):
+    if history is None:
+        history = []
+    best_score = 0
+    best_move = None
+    global allboards
+
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                if weight[row][col] > best_score:
+                    best_score = weight[row][col]
+                    best_move = (row, col)
+
+    if best_move:
+        make_move(best_move[0], best_move[1], current, board)
+        history.append(tuple(tuple(row) for row in board))  # 현재 보드 상태를 기록
+        winner = check_winner(board)
+        if winner:
+            global notdraw
+            notdraw += 1
+            update_allboards(history, winner)
+        else:
+            next_player = 'X' if current == 'O' else 'O'
+            playTTTself_play_random(weight, next_player, board, history)
+    else:
+        global draw
+        draw += 1
+
+def update_allboards(history, winner):
+    # tictactoe의 모든 단계의 보드 상태를 추적하여 allboards 값을 업데이트
+    global allboards
+    for board_state in history:
+        if winner == 'O':
+            allboards[board_state] += 1
+        elif winner == 'X':
+            allboards[board_state] -= 1
+
+def train_play_random():
+    for i in range(0,100000):
+        weight=create_random_weight()
+        board = [['' for _ in range(3)] for _ in range(3)]
+        playTTTself_play_random(weight, 'O', board)
+        if(i%10000==0)
+            print(i)
+
+train_play_random()
+
+def level4(board,current):
+    global allboards
+    best_score = float('-inf') if current == 'O' else float('inf')
+    best_move = None
+    print(board)
+    print(current)
+        # 가능한 모든 움직임을 시뮬레이션하여 최선의 움직임을 찾음
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == '':
+                board[row][col] = current
+                board_tuple = tuple(tuple(r) for r in board)
+                score = allboards[board_tuple]
+                print(score)
+                if current == 'O':
+                    if score > best_score:
+                        best_score = score
+                        best_move = (row, col)
+                else:
+                    if score < best_score:
+                        best_score = score
+                        best_move = (row, col)
+                board[row][col] = ''  # 보드 상태 복원
     return best_move
 
 
@@ -224,6 +299,10 @@ def selectlevel():
     comp_text = small_font.render("Press 3 for level3", True, BLACK)
     comp_rect = comp_text.get_rect(center=(size // 2, 400))
     screen.blit(comp_text, comp_rect)
+    comp_text = small_font.render("Press 4 for level4", True, BLACK)
+    comp_rect = comp_text.get_rect(center=(size // 2, 450))
+    screen.blit(comp_text, comp_rect)
+
 
 def selectplayer():
     screen.fill(WHITE)
@@ -271,6 +350,8 @@ while level==0 and player==1:
                 level=2
             elif event.key == pygame.K_3 or event.key == pygame.K_KP3:
                 level=3
+            elif event.key == pygame.K_4 or event.key == pygame.K_KP4:
+                level=4
             elif event.key == pygame.K_q:
                 pygame.quit()
                 sys.exit()
@@ -345,6 +426,8 @@ while True:
                     row, col = level2(board,current_player)
                 elif(level==3):
                     row, col = level3(board)
+                elif(level==4):
+                    row, col = level4(board,current_player)
                 board[row][col] = current_player
                 winner = check_winner(board)
                 if winner:
