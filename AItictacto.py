@@ -95,7 +95,7 @@ def playTTTself_noob(weight0, weight1,current,board):
     else:
         return average_weights(weight0, weight1) 
 
-def train_noob(): # can't training. Cause random computer almost always draw
+def train_noob():
     weight10240=[[normalization_weight(create_random_weight()) for k in range(1024)] for l in range(10)]
     for l in range(0,10):
         k=1024
@@ -221,6 +221,8 @@ pygame.display.set_caption('Tic Tac Toe')
 board = [['' for _ in range(3)] for _ in range(3)]
 current_player = 'O'
 game_over = False
+show_score = True  # 점수판 표시 여부를 결정하는 변수
+score_message = "Press 'S' to show/hide scoreboard."
 
 # 글꼴 설정
 font = pygame.font.Font(None, 200)
@@ -231,7 +233,6 @@ def draw_board():
     # 수직선 그리기
     pygame.draw.line(screen, BLACK, (cell_size, 0), (cell_size, size), 3)
     pygame.draw.line(screen, BLACK, (2 * cell_size, 0), (2 * cell_size, size), 3)
-    pygame.draw.line(screen, BLACK, (3 * cell_size, 0), (3 * cell_size, size), 3)
     # 수평선 그리기
     pygame.draw.line(screen, BLACK, (0, cell_size), (size, cell_size), 3)
     pygame.draw.line(screen, BLACK, (0, 2 * cell_size), (size, 2 * cell_size), 3)
@@ -241,6 +242,20 @@ def draw_board():
             if board[row][col] != '':
                 text = font.render(board[row][col], True, RED if board[row][col] == 'X' else BLUE)
                 screen.blit(text, (col * cell_size + 30, row * cell_size + 10))
+
+    if show_score:
+        # 점수판 그리기
+        pygame.draw.line(screen, BLACK, (size, 0), (size, size), 3)  # 보드 오른쪽에 구분선 그리기
+        score_text = small_font.render("Board Scores", True, BLACK)  # "Board Scores" 텍스트 추가
+        screen.blit(score_text, (size + 20, 20))  # "Board Scores" 텍스트 위치 지정
+
+        board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
+        score = allboards[board_tuple]  # 현재 보드 상태의 점수 가져오기
+        score_display = small_font.render(str(score), True, BLACK)  # 점수를 텍스트로 변환
+        screen.blit(score_display, (size + 20, 60))  # 점수 텍스트 위치 지정
+
+    score_message_display = small_font.render(score_message, True, BLACK)
+    screen.blit(score_message_display, (size + 20, 100))
 
 def selectfirst():
     screen.fill(WHITE)
@@ -367,6 +382,7 @@ else:
 game_over = False
 
 
+
 def reset_game():
     global board, current_player, game_over
     board = [['' for _ in range(3)] for _ in range(3)]
@@ -422,6 +438,8 @@ while True:
                     reset_game()
                 if event.key == pygame.K_q:
                     exit()
+                if event.key == pygame.K_s:
+                    show_score = not show_score
     else:
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
