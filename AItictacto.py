@@ -39,7 +39,8 @@ def create_random_weight():
     weightsum=sum(sum(row) for row in weight)
     result_weight = [[element/weightsum for element in row] for row in weight]
     return result_weight
-
+draw=0
+notdraw=0
 def average_weights(weight0, weight1):
     average = [[(weight0[row][col] + weight1[row][col]) / 2 for col in range(3)] for row in range(3)]
     return average
@@ -60,14 +61,18 @@ def playTTTself_noob(weight0, weight1,current,board):
         make_move(best_move[0], best_move[1], current,board)
         winner = check_winner()
         if winner:
+            global notdraw
+            notdraw+=1
             return weight0 if winner == 'O' else weight1
         else:
             next_player = 'X' if current == 'O' else 'O'
             return playTTTself_noob(weight0, weight1, next_player,board)
     else:
+        global draw
+        draw+=1
         return average_weights(weight0, weight1)
 
-def train_noob():
+def train_noob(): # can't training. Cause random computer almost always draw
     weight10240=[[create_random_weight() for k in range(1024)] for l in range(10)]
     for l in range(0,10):
         k=1024
@@ -87,6 +92,15 @@ def train_noob():
         
 
 print(train_noob())
+"""
+weight0=[[1,100,1],[1,100,1],[1,100,1]]
+weight1=[[1,1,100],[1,1,100],[1,1,100]]
+board = [['' for _ in range(3)] for _ in range(3)]
+print(playTTTself_noob(weight0, weight1,'O',board))
+print(playTTTself_noob(weight1, weight0,'O',board))
+"""
+print(draw)
+print(notdraw)
 
 # 색상 정의
 WHITE = (255, 255, 255)
