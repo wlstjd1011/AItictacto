@@ -250,7 +250,7 @@ current_player = 'O'
 first='O'
 game_over = False
 show_score = True  # 점수판 표시 여부를 결정하는 변수
-score_message = "Press 'S' to show/hide scoreboard."
+score_message = "'S' to show/hide."
 
 # 글꼴 설정
 font = pygame.font.Font(None, 200)
@@ -264,16 +264,17 @@ def draw_board():
     # 수평선 그리기
     pygame.draw.line(screen, BLACK, (0, cell_size), (size, cell_size), 3)
     pygame.draw.line(screen, BLACK, (0, 2 * cell_size), (size, 2 * cell_size), 3)
+    pygame.draw.line(screen, BLACK, (size, 0), (size, size), 3)
 
     for row in range(3):
         for col in range(3):
             if board[row][col] != '':
                 text = font.render(board[row][col], True, RED if board[row][col] == 'X' else BLUE)
                 screen.blit(text, (col * cell_size + 30, row * cell_size + 10))
-
+    score_message_display = small_font.render("'B' return to start screen", True, BLACK)
+    screen.blit(score_message_display, (size + 20, 140))
     if show_score:
         # 점수판 그리기
-        pygame.draw.line(screen, BLACK, (size, 0), (size, size), 3)  # 보드 오른쪽에 구분선 그리기
         score_text = small_font.render("Board Scores", True, BLACK)  # "Board Scores" 텍스트 추가
         screen.blit(score_text, (size + 20, 20))  # "Board Scores" 텍스트 위치 지정
 
@@ -470,6 +471,62 @@ while True:
                     exit()
                 if event.key == pygame.K_s:
                     show_score = not show_score
+                if event.key == pygame.K_b:
+                    player = 0
+                    level = 0
+                    # 초기 상태로 되돌아가 선택 화면을 다시 표시
+                    while player == 0:
+                        for event in pygame.event.get():
+                            if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+                                    player = 1
+                                elif event.key == pygame.K_2 or event.key == pygame.K_KP2:
+                                    player = 2
+                                elif event.key == pygame.K_q:
+                                    pygame.quit()
+                                    sys.exit()
+                            elif event.type == pygame.QUIT:
+                                pygame.quit()
+                                sys.exit()
+                        selectplayer()
+                        pygame.display.flip()
+
+                    while level == 0 and player == 1:
+                        for event in pygame.event.get():
+                            if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+                                    level = 1
+                                elif event.key == pygame.K_2 or event.key == pygame.K_KP2:
+                                    level = 2
+                                elif event.key == pygame.K_3 or event.key == pygame.K_KP3:
+                                    level = 3
+                                elif event.key == pygame.K_4 or event.key == pygame.K_KP4:
+                                    level = 4
+                                elif event.key == pygame.K_q:
+                                    pygame.quit()
+                                    sys.exit()
+                            elif event.type == pygame.QUIT:
+                                pygame.quit()
+                                sys.exit()
+                        selectlevel()
+                        pygame.display.flip()
+
+                    user_choice = ''
+                    while user_choice not in ['U', 'C'] and player == 1:
+                        for event in pygame.event.get():
+                            if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_u:
+                                    user_choice = 'U'
+                                elif event.key == pygame.K_c:
+                                    user_choice = 'C'
+                                elif event.key == pygame.K_q:
+                                    pygame.quit()
+                                    sys.exit()
+                            elif event.type == pygame.QUIT:
+                                pygame.quit()
+                                sys.exit()
+                        selectfirst()
+                        pygame.display.flip()
     else:
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
