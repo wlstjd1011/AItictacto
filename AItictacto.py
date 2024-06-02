@@ -13,7 +13,7 @@ def generate_alltictactoe_boards():
     for first in ['O', 'X']:
         for comb in all_comb:
             board_tuple = tuple(tuple(comb[i:i+3]) for i in range(0, 9, 3))
-            all_boards[(board_tuple, first)] = 0
+            all_boards[(board_tuple, first)]=[0, 0, 0] #'O' win, lose, draw
     return all_boards
 
 def make_move(row, col, current,board):
@@ -157,6 +157,8 @@ def playTTTself_play_random(first, weight, current, board,allboards, history=Non
         winner = check_winner(board)
         if winner:
             update_allboards(first,history, winner,allboards)
+        if (is_board_full(board)):
+            update_allboards(first,history, winner,allboards)
         else:
             next_player = 'X' if current == 'O' else 'O'
             playTTTself_play_random(first,weight, next_player, board,allboards, history)
@@ -167,9 +169,12 @@ def update_allboards(first,history, winner,allboards):
     # tictactoe의 모든 단계의 보드 상태를 추적하여 allboards 값을 업데이트
     for board_state in history:
         if winner == 'O':
-            allboards[board_state,first] += 1
+            allboards[board_state,first][0]+=1
         elif winner == 'X':
-            allboards[board_state,first] -= 1
+            allboards[board_state,first][1]+=1
+        else:
+            allboards[board_state,first][2]+=1
+        
 
 def train_play_random(allboards):
     for i in range(0,100000):
@@ -193,7 +198,7 @@ def level4(first,board,current):
             if board[row][col] == '':
                 board[row][col] = current
                 board_tuple = tuple(tuple(r) for r in board)
-                score = level4boards[board_tuple,first]
+                score = level4boards[board_tuple,first][0]-level4boards[board_tuple,first][1]
                 if current == 'O':
                     if score > best_score:
                         best_score = score
@@ -272,19 +277,32 @@ def draw_board():
                 text = font.render(board[row][col], True, RED if board[row][col] == 'X' else BLUE)
                 screen.blit(text, (col * cell_size + 30, row * cell_size + 10))
     score_message_display = small_font.render("'B' return to start screen", True, BLACK)
-    screen.blit(score_message_display, (size + 20, 140))
+    screen.blit(score_message_display, (size + 20, 220))
     if show_score:
         # 점수판 그리기
-        score_text = small_font.render("Board Scores", True, BLACK)  # "Board Scores" 텍스트 추가
-        screen.blit(score_text, (size + 20, 20))  # "Board Scores" 텍스트 위치 지정
+        winrate_text = small_font.render("Now 'O'winrate", True, BLACK)  # "Board Scores" 텍스트 추가
+        screen.blit(winrate_text, (size + 20, 20))  # "Board Scores" 텍스트 위치 지정
 
         board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
-        score = level4boards[board_tuple,first]  # 현재 보드 상태의 점수 가져오기
-        score_display = small_font.render(str(score), True, BLACK)  # 점수를 텍스트로 변환
-        screen.blit(score_display, (size + 20, 60))  # 점수 텍스트 위치 지정
+        if(level4boards[board_tuple,first][0]+level4boards[board_tuple,first][1]+ level4boards[board_tuple,first][2]==0):
+            Owinrate=0
+            Odrawrate=0
+        else:
+            Owinrate = level4boards[board_tuple,first][0]/(level4boards[board_tuple,first][0]+level4boards[board_tuple,first][1]+
+                                                        level4boards[board_tuple,first][2])  # 현재 상태의 'O' 승률
+            Odrawrate= level4boards[board_tuple,first][2]/(level4boards[board_tuple,first][0]+level4boards[board_tuple,first][1]+
+                                                        level4boards[board_tuple,first][2])  # 현재 상태에서 비길 확률
+        winrate_display = small_font.render(str(Owinrate), True, BLACK)  # 점수를 텍스트로 변환
+        screen.blit(winrate_display, (size + 20, 60))  # 점수 텍스트 위치 지정
+
+        drawrate_text = small_font.render("Now 'drawrate", True, BLACK)  # "Board Scores" 텍스트 추가
+        screen.blit(drawrate_text, (size + 20, 100))
+
+        drawrate_display = small_font.render(str(Odrawrate), True, BLACK)  # 점수를 텍스트로 변환
+        screen.blit(drawrate_display, (size + 20, 140))  # 점수 텍스트 위치 지정
 
     score_message_display = small_font.render(score_message, True, BLACK)
-    screen.blit(score_message_display, (size + 20, 100))
+    screen.blit(score_message_display, (size + 20, 180))
 
 def selectfirst():
     screen.fill(WHITE)
