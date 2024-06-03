@@ -3,6 +3,8 @@ import sys
 import random
 import itertools
 
+REPEAT=100000
+
 board = [['' for _ in range(3)] for _ in range(3)]
 
 
@@ -138,9 +140,9 @@ level4boards=generate_alltictactoe_boards()
 level5boards=generate_alltictactoe_boards()
 
 
-def playTTTself_play_random(first, weight, current, board,allboards, history=None):
+def playTTTself_play_random(first, weight, current, board, allboards, history=None):
     if history is None:
-        history = []
+        history = [(('','',''),('','',''),('','',''))]
     best_score = 0
     best_move = None
 
@@ -156,28 +158,30 @@ def playTTTself_play_random(first, weight, current, board,allboards, history=Non
         history.append(tuple(tuple(row) for row in board))  # 현재 보드 상태를 기록
         winner = check_winner(board)
         if winner:
-            update_allboards(first,history, winner,allboards)
-        if (is_board_full(board)):
-            update_allboards(first,history, winner,allboards)
+            update_allboards(first, history, winner, allboards)
+            return
+        if is_board_full(board):
+            update_allboards(first, history, None, allboards)
+            return
         else:
             next_player = 'X' if current == 'O' else 'O'
-            playTTTself_play_random(first,weight, next_player, board,allboards, history)
+            playTTTself_play_random(first, weight, next_player, board, allboards, history)
     else:
         return
 
 def update_allboards(first,history, winner,allboards):
     # tictactoe의 모든 단계의 보드 상태를 추적하여 allboards 값을 업데이트
-    for board_state in history:
+    for board_tuple in history:
         if winner == 'O':
-            allboards[board_state,first][0]+=1
+            allboards[board_tuple,first][0]+=1
         elif winner == 'X':
-            allboards[board_state,first][1]+=1
+            allboards[board_tuple,first][1]+=1
         else:
-            allboards[board_state,first][2]+=1
+            allboards[board_tuple,first][2]+=1
         
 
 def train_play_random(allboards):
-    for i in range(0,100000):
+    for i in range(0,REPEAT):
         weight=create_random_weight()
         board = [['' for _ in range(3)] for _ in range(3)]
         playTTTself_play_random('O',weight, 'O', board,allboards)
@@ -255,7 +259,6 @@ current_player = 'O'
 first='O'
 game_over = False
 show_score = True  # 점수판 표시 여부를 결정하는 변수
-score_message = "'S' to show/hide."
 
 # 글꼴 설정
 font = pygame.font.Font(None, 200)
@@ -276,33 +279,34 @@ def draw_board():
             if board[row][col] != '':
                 text = font.render(board[row][col], True, RED if board[row][col] == 'X' else BLUE)
                 screen.blit(text, (col * cell_size + 30, row * cell_size + 10))
-    score_message_display = small_font.render("'B' return to start screen", True, BLACK)
-    screen.blit(score_message_display, (size + 20, 220))
+    restart_message_display = small_font.render("'B' return to start screen", True, BLACK)
+    screen.blit(restart_message_display, (size + 20, 300))
     if show_score:
-        # 점수판 그리기
-        winrate_text = small_font.render("Now 'O'winrate", True, BLACK)  # "Board Scores" 텍스트 추가
-        screen.blit(winrate_text, (size + 20, 20))  # "Board Scores" 텍스트 위치 지정
-
         board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
-        if(level4boards[board_tuple,first][0]+level4boards[board_tuple,first][1]+ level4boards[board_tuple,first][2]==0):
-            Owinrate=0
-            Odrawrate=0
-        else:
-            Owinrate = level4boards[board_tuple,first][0]/(level4boards[board_tuple,first][0]+level4boards[board_tuple,first][1]+
-                                                        level4boards[board_tuple,first][2])  # 현재 상태의 'O' 승률
-            Odrawrate= level4boards[board_tuple,first][2]/(level4boards[board_tuple,first][0]+level4boards[board_tuple,first][1]+
-                                                        level4boards[board_tuple,first][2])  # 현재 상태에서 비길 확률
-        winrate_display = small_font.render(str(Owinrate), True, BLACK)  # 점수를 텍스트로 변환
-        screen.blit(winrate_display, (size + 20, 60))  # 점수 텍스트 위치 지정
+        Owincase=level4boards[(board_tuple,first)][0]
+        Olosecase=level4boards[(board_tuple,first)][1]
+        Odrawcase=level4boards[(board_tuple,first)][2]
 
-        drawrate_text = small_font.render("Now 'drawrate", True, BLACK)  # "Board Scores" 텍스트 추가
-        screen.blit(drawrate_text, (size + 20, 100))
+        Owincase_text = small_font.render("'O'wincase", True, BLACK)  # "Board Scores" 텍스트 추가
+        screen.blit(Owincase_text, (size + 20, 20)) 
 
-        drawrate_display = small_font.render(str(Odrawrate), True, BLACK)  # 점수를 텍스트로 변환
-        screen.blit(drawrate_display, (size + 20, 140))  # 점수 텍스트 위치 지정
+        wincase_display = small_font.render(str(Owincase), True, BLACK)  # 점수를 텍스트로 변환
+        screen.blit(wincase_display, (size + 20, 60))  # 점수 텍스트 위치 지정
 
-    score_message_display = small_font.render(score_message, True, BLACK)
-    screen.blit(score_message_display, (size + 20, 180))
+        Olosecase_text = small_font.render("'O'losecase", True, BLACK)  
+        screen.blit(Olosecase_text, (size + 20, 100))
+
+        losecase_display = small_font.render(str(Olosecase), True, BLACK)  # 점수를 텍스트로 변환
+        screen.blit(losecase_display, (size + 20, 140))
+
+        drawcase_text = small_font.render("drawcase", True, BLACK)  
+        screen.blit(drawcase_text, (size + 20, 180))
+
+        drawcase_display = small_font.render(str(Odrawcase), True, BLACK)  # 점수를 텍스트로 변환
+        screen.blit(drawcase_display, (size + 20, 220))  # 점수 텍스트 위치 지정
+
+    score_message_display = small_font.render("'S' to show/hide score.", True, BLACK)
+    screen.blit(score_message_display, (size + 20, 260))
 
 def selectfirst():
     screen.fill(WHITE)
@@ -441,6 +445,8 @@ def reset_game():
         current_player = 'O'
     game_over = False
 
+
+
 # 게임 루프
 while True:
     if(player==1):
@@ -492,6 +498,9 @@ while True:
                 if event.key == pygame.K_b:
                     player = 0
                     level = 0
+                    user_choice = ''
+                    game_over=False
+                    board = [['' for _ in range(3)] for _ in range(3)]
                     # 초기 상태로 되돌아가 선택 화면을 다시 표시
                     while player == 0:
                         for event in pygame.event.get():
@@ -528,8 +537,6 @@ while True:
                                 sys.exit()
                         selectlevel()
                         pygame.display.flip()
-
-                    user_choice = ''
                     while user_choice not in ['U', 'C'] and player == 1:
                         for event in pygame.event.get():
                             if event.type == pygame.KEYDOWN:
@@ -545,6 +552,12 @@ while True:
                                 sys.exit()
                         selectfirst()
                         pygame.display.flip()
+                    if user_choice == 'C':
+                        first='X'
+                        current_player = 'X'
+                    else:
+                        first='O'
+                        current_player = 'O'
     else:
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
