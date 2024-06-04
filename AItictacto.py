@@ -3,20 +3,10 @@ import sys
 import random
 import itertools
 
-REPEAT=100000
+randomplay=1000000
+reinforceplay=1000000
 
 board = [['' for _ in range(3)] for _ in range(3)]
-
-
-def generate_alltictactoe_boards():
-    symbols = ['O', 'X', '']
-    all_comb = list(itertools.product(symbols, repeat=9))
-    all_boards={}
-    for first in ['O', 'X']:
-        for comb in all_comb:
-            board_tuple = tuple(tuple(comb[i:i+3]) for i in range(0, 9, 3))
-            all_boards[(board_tuple, first)]=[0, 0, 0] #'O' win, lose, draw
-    return all_boards
 
 def make_move(row, col, current,board):
     board[row][col] = current
@@ -135,9 +125,19 @@ def level3(board):
                     best_move = (row, col)
     return best_move
 
+def generate_allboards_boards():
+    symbols = ['O', 'X', '']
+    all_comb = list(itertools.product(symbols, repeat=9))
+    all_boards={}
+    for first in ['O', 'X']:
+        for comb in all_comb:
+            board_tuple = tuple(tuple(comb[i:i+3]) for i in range(0, 9, 3))
+            all_boards[(board_tuple, first)]=[0, 0, 0] #'O' win, lose, draw
+    return all_boards
+
 # 학습을 위한 board들 준비
-level4boards=generate_alltictactoe_boards()
-level5boards=generate_alltictactoe_boards()
+level4boards=generate_allboards_boards()
+level5boards=generate_allboards_boards()
 
 
 def playTTTself_play_random(first, weight, current, board, allboards, history=None):
@@ -181,7 +181,7 @@ def update_allboards(first,history, winner,allboards):
         
 
 def train_play_random(allboards):
-    for i in range(0,REPEAT):
+    for i in range(0,randomplay):
         weight=create_random_weight()
         board = [['' for _ in range(3)] for _ in range(3)]
         playTTTself_play_random('O',weight, 'O', board,allboards)
@@ -214,7 +214,66 @@ def level4(first,board,current):
                 board[row][col] = ''  # 보드 상태 복원
     return best_move
 
-def level5(board,current):
+alpha=0.1
+
+def playTTTself_play_reinforce(first, current, board, allboards, history=None):
+    if history is None:
+        history = [(('','',''),('','',''),('','',''))]
+    best_score = -1 if current == 'O' else 1
+    best_move = None
+
+    if(random.uniform(0,1)<alpha):
+        available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
+    # 가능한 위치 중에서 랜덤하게 선택합니다.
+        best_move = random.choice(available_positions)
+    else:
+        for row in range(3):
+            for col in range(3):
+                if board[row][col] == '':
+                    board[row][col] = current
+                    board_tuple = tuple(tuple(r) for r in board)
+                    numthisposition=allboards[board_tuple,first][0]+allboards[board_tuple,first][1]+allboards[board_tuple,first][2]
+                    if numthisposition==0:
+                        score=0
+                    else:
+                        score = (allboards[board_tuple,first][0]-allboards[board_tuple,first][1])/numthisposition
+                    if current == 'O':
+                        if score > best_score:
+                            best_score = score
+                            best_move = (row, col)
+                    else:
+                        if score < best_score:
+                            best_score = score
+                            best_move = (row, col)
+                    board[row][col] = ''  
+    if best_move:
+        make_move(best_move[0], best_move[1], current, board)
+        history.append(tuple(tuple(row) for row in board))  # 현재 보드 상태를 기록
+        winner = check_winner(board)
+        if winner:
+            update_allboards(first, history, winner, allboards)
+            return
+        if is_board_full(board):
+            update_allboards(first, history, None, allboards)
+            return
+        else:
+            next_player = 'X' if current == 'O' else 'O'
+            playTTTself_play_reinforce(first, next_player, board, allboards, history)
+    else:
+        return
+
+def train_play_reinforce(allboards):
+    for i in range(0,reinforceplay):
+        board = [['' for _ in range(3)] for _ in range(3)]
+        playTTTself_play_reinforce('O', 'O', board,allboards)
+        board = [['' for _ in range(3)] for _ in range(3)]
+        playTTTself_play_reinforce('X', 'X', board,allboards)
+        if(i%10000==0):
+            print(i)
+
+train_play_reinforce(level5boards)
+
+def level5(first,board,current):
     global level5boards
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
@@ -224,7 +283,11 @@ def level5(board,current):
             if board[row][col] == '':
                 board[row][col] = current
                 board_tuple = tuple(tuple(r) for r in board)
-                score = level5boards[board_tuple,first]
+                numthisposition=level5boards[board_tuple,first][0]+level5boards[board_tuple,first][1]+level5boards[board_tuple,first][2]
+                if numthisposition==0:
+                    score=0
+                else:
+                    score = (level5boards[board_tuple,first][0]-level5boards[board_tuple,first][1])/numthisposition
                 if current == 'O':
                     if score > best_score:
                         best_score = score
@@ -235,6 +298,7 @@ def level5(board,current):
                         best_move = (row, col)
                 board[row][col] = ''  # 보드 상태 복원
     return best_move
+
 
 # 색상 정의
 WHITE = (255, 255, 255)
@@ -283,9 +347,9 @@ def draw_board():
     screen.blit(restart_message_display, (size + 20, 300))
     if show_score:
         board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
-        Owincase=level4boards[(board_tuple,first)][0]
-        Olosecase=level4boards[(board_tuple,first)][1]
-        Odrawcase=level4boards[(board_tuple,first)][2]
+        Owincase=level5boards[(board_tuple,first)][0]
+        Olosecase=level5boards[(board_tuple,first)][1]
+        Odrawcase=level5boards[(board_tuple,first)][2]
 
         Owincase_text = small_font.render("'O'wincase", True, BLACK)  # "Board Scores" 텍스트 추가
         screen.blit(Owincase_text, (size + 20, 20)) 
@@ -349,6 +413,9 @@ def selectlevel():
     comp_text = small_font.render("Press 4 for level4", True, BLACK)
     comp_rect = comp_text.get_rect(center=(size // 2, 450))
     screen.blit(comp_text, comp_rect)
+    comp_text = small_font.render("Press 5 for level5", True, BLACK)
+    comp_rect = comp_text.get_rect(center=(size // 2, 500))
+    screen.blit(comp_text, comp_rect)
 
 
 def selectplayer():
@@ -399,6 +466,8 @@ while level==0 and player==1:
                 level=3
             elif event.key == pygame.K_4 or event.key == pygame.K_KP4:
                 level=4
+            elif event.key == pygame.K_5 or event.key == pygame.K_KP5:
+                level=5
             elif event.key == pygame.K_q:
                 pygame.quit()
                 sys.exit()
@@ -480,6 +549,8 @@ while True:
                     row, col = level3(board)
                 elif(level==4):
                     row, col = level4(first,board,current_player)
+                elif(level==5):
+                    row, col = level5(first,board,current_player)
                 board[row][col] = current_player
                 winner = check_winner(board)
                 if winner:
@@ -529,6 +600,8 @@ while True:
                                     level = 3
                                 elif event.key == pygame.K_4 or event.key == pygame.K_KP4:
                                     level = 4
+                                elif event.key == pygame.K_5 or event.key == pygame.K_KP5:
+                                    level=5
                                 elif event.key == pygame.K_q:
                                     pygame.quit()
                                     sys.exit()
