@@ -654,6 +654,75 @@ while True:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         reset_game()
+                    if event.key == pygame.K_q:
+                        exit()
+                    if event.key == pygame.K_s:
+                        show_score = not show_score
+                    if event.key == pygame.K_b:
+                        player = 0
+                        level = 0
+                        user_choice = ''
+                        game_over=False
+                        board = [['' for _ in range(3)] for _ in range(3)]
+                        # 초기 상태로 되돌아가 선택 화면을 다시 표시
+                        while player == 0:
+                            for event in pygame.event.get():
+                                if event.type == pygame.KEYDOWN:
+                                    if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+                                        player = 1
+                                    elif event.key == pygame.K_2 or event.key == pygame.K_KP2:
+                                        player = 2
+                                    elif event.key == pygame.K_q:
+                                        pygame.quit()
+                                        sys.exit()
+                                elif event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    sys.exit()
+                            selectplayer()
+                            pygame.display.flip()
+
+                        while level == 0 and player == 1:
+                            for event in pygame.event.get():
+                                if event.type == pygame.KEYDOWN:
+                                    if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+                                        level = 1
+                                    elif event.key == pygame.K_2 or event.key == pygame.K_KP2:
+                                        level = 2
+                                    elif event.key == pygame.K_3 or event.key == pygame.K_KP3:
+                                        level = 3
+                                    elif event.key == pygame.K_4 or event.key == pygame.K_KP4:
+                                        level = 4
+                                    elif event.key == pygame.K_5 or event.key == pygame.K_KP5:
+                                        level=5
+                                    elif event.key == pygame.K_q:
+                                        pygame.quit()
+                                        sys.exit()
+                                elif event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    sys.exit()
+                            selectlevel()
+                            pygame.display.flip()
+                        while user_choice not in ['U', 'C'] and player == 1:
+                            for event in pygame.event.get():
+                                if event.type == pygame.KEYDOWN:
+                                    if event.key == pygame.K_u:
+                                        user_choice = 'U'
+                                    elif event.key == pygame.K_c:
+                                        user_choice = 'C'
+                                    elif event.key == pygame.K_q:
+                                        pygame.quit()
+                                        sys.exit()
+                                elif event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    sys.exit()
+                            selectfirst()
+                            pygame.display.flip()
+                        if user_choice == 'C':
+                            first='X'
+                            current_player = 'X'
+                        else:
+                            first='O'
+                            current_player = 'O'
                 
 
 
