@@ -345,6 +345,8 @@ def draw_board():
                 screen.blit(text, (col * cell_size + 30, row * cell_size + 10))
     restart_message_display = small_font.render("'B' return to start screen", True, BLACK)
     screen.blit(restart_message_display, (size + 20, 300))
+    chance_message_display = small_font.render("'C' AI moves for you", True, BLACK)
+    screen.blit(chance_message_display, (size + 20, 340))
     if show_score:
         board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
         Owincase=level5boards[(board_tuple,first)][0]
@@ -371,6 +373,8 @@ def draw_board():
 
     score_message_display = small_font.render("'S' to show/hide score.", True, BLACK)
     screen.blit(score_message_display, (size + 20, 260))
+
+
 
 def selectfirst():
     screen.fill(WHITE)
@@ -566,6 +570,16 @@ while True:
                     exit()
                 if event.key == pygame.K_s:
                     show_score = not show_score
+                if event.key == pygame.K_c and not game_over:
+                    row, col = level5(first,board,current_player)
+                    board[row][col] = current_player
+                    winner = check_winner(board)
+                    if winner:
+                        game_over = True
+                    elif is_board_full(board):
+                        game_over = True
+                    else:
+                        current_player = 'X' if current_player == 'O' else 'O'
                 if event.key == pygame.K_b:
                     player = 0
                     level = 0
@@ -658,6 +672,16 @@ while True:
                         exit()
                     if event.key == pygame.K_s:
                         show_score = not show_score
+                    if event.key == pygame.K_c and not game_over:
+                        row, col = level5(first,board,current_player)
+                        board[row][col] = current_player
+                        winner = check_winner(board)
+                        if winner:
+                            game_over = True
+                        elif is_board_full(board):
+                            game_over = True
+                        else:
+                            current_player = 'X' if current_player == 'O' else 'O'
                     if event.key == pygame.K_b:
                         player = 0
                         level = 0
