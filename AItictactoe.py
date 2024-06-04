@@ -38,21 +38,7 @@ def level1(board):
     row, col = random.choice(available_positions)
     return row, col
 
-def level2(board,current):
-    # 가능한 모든 빈 칸의 위치를 찾습니다.
-    available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
-    # 당장 승리할 수 있다면, 승리합니다.
-    for row in range(3):
-        for col in range(3):
-            if board[row][col] == '':
-                board[row][col] = current
-                if check_winner(board) == current:
-                    board[row][col] = ''  # 보드 상태 복원
-                    return row, col
-                board[row][col] = ''  # 보드 상태 복원
-                
-    row, col = random.choice(available_positions)
-    return row, col
+
 
 def create_random_weight():
     weight=[[random.uniform(0,1) for i in range(3)] for j in range(3)]
@@ -110,18 +96,18 @@ def train_noob():
             weight[i][j]/=10
     return weight
 
-level3weight=train_noob()
-print(level3weight)
+level2weight=train_noob()
+print(level2weight)
 
-def level3(board):
+def level2(board):
     best_score = -1
     best_move = None
 
     for row in range(3):
         for col in range(3):
             if board[row][col] == '':
-                if level3weight[row][col] > best_score:
-                    best_score = level3weight[row][col]
+                if level2weight[row][col] > best_score:
+                    best_score = level2weight[row][col]
                     best_move = (row, col)
     return best_move
 
@@ -136,8 +122,8 @@ def generate_allboards_boards():
     return all_boards
 
 # 학습을 위한 board들 준비
+level3boards=generate_allboards_boards()
 level4boards=generate_allboards_boards()
-level5boards=generate_allboards_boards()
 
 
 def playTTTself_play_random(first, weight, current, board, allboards, history=None):
@@ -190,10 +176,10 @@ def train_play_random(allboards):
         if(i%10000==0):
             print(i)
 
-train_play_random(level4boards)
+train_play_random(level3boards)
 
-def level4(first,board,current):
-    global level4boards
+def level3(first,board,current):
+    global level3boards
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
         # 가능한 모든 움직임을 시뮬레이션하여 최선의 움직임을 찾음
@@ -202,7 +188,7 @@ def level4(first,board,current):
             if board[row][col] == '':
                 board[row][col] = current
                 board_tuple = tuple(tuple(r) for r in board)
-                score = level4boards[board_tuple,first][0]-level4boards[board_tuple,first][1]
+                score = level3boards[board_tuple,first][0]-level3boards[board_tuple,first][1]
                 if current == 'O':
                     if score > best_score:
                         best_score = score
@@ -271,10 +257,10 @@ def train_play_reinforce(allboards):
         if(i%10000==0):
             print(i)
 
-train_play_reinforce(level5boards)
+train_play_reinforce(level4boards)
 
-def level5(first,board,current):
-    global level5boards
+def level4(first,board,current):
+    global level3boards
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
         # 가능한 모든 움직임을 시뮬레이션하여 최선의 움직임을 찾음
@@ -283,11 +269,11 @@ def level5(first,board,current):
             if board[row][col] == '':
                 board[row][col] = current
                 board_tuple = tuple(tuple(r) for r in board)
-                numthisposition=level5boards[board_tuple,first][0]+level5boards[board_tuple,first][1]+level5boards[board_tuple,first][2]
+                numthisposition=level4boards[board_tuple,first][0]+level4boards[board_tuple,first][1]+level4boards[board_tuple,first][2]
                 if numthisposition==0:
                     score=0
                 else:
-                    score = (level5boards[board_tuple,first][0]-level5boards[board_tuple,first][1])/numthisposition
+                    score = (level4boards[board_tuple,first][0]-level4boards[board_tuple,first][1])/numthisposition
                 if current == 'O':
                     if score > best_score:
                         best_score = score
@@ -349,9 +335,9 @@ def draw_board():
     screen.blit(chance_message_display, (size + 20, 340))
     if show_score:
         board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
-        Owincase=level5boards[(board_tuple,first)][0]
-        Olosecase=level5boards[(board_tuple,first)][1]
-        Odrawcase=level5boards[(board_tuple,first)][2]
+        Owincase=level4boards[(board_tuple,first)][0]
+        Olosecase=level4boards[(board_tuple,first)][1]
+        Odrawcase=level4boards[(board_tuple,first)][2]
 
         Owincase_text = small_font.render("'O'wincase", True, BLACK)  # "Board Scores" 텍스트 추가
         screen.blit(Owincase_text, (size + 20, 20)) 
@@ -417,9 +403,7 @@ def selectlevel():
     comp_text = small_font.render("Press 4 for level4", True, BLACK)
     comp_rect = comp_text.get_rect(center=(size // 2, 450))
     screen.blit(comp_text, comp_rect)
-    comp_text = small_font.render("Press 5 for level5", True, BLACK)
-    comp_rect = comp_text.get_rect(center=(size // 2, 500))
-    screen.blit(comp_text, comp_rect)
+
 
 
 def selectplayer():
@@ -548,13 +532,11 @@ while True:
                 if(level==1):
                     row, col = level1(board)
                 elif(level==2):
-                    row, col = level2(board,current_player)
+                    row, col = level2(board)
                 elif(level==3):
-                    row, col = level3(board)
+                    row, col = level3(first,board,current_player)
                 elif(level==4):
                     row, col = level4(first,board,current_player)
-                elif(level==5):
-                    row, col = level5(first,board,current_player)
                 board[row][col] = current_player
                 winner = check_winner(board)
                 if winner:
@@ -571,7 +553,7 @@ while True:
                 if event.key == pygame.K_s:
                     show_score = not show_score
                 if event.key == pygame.K_c and not game_over:
-                    row, col = level5(first,board,current_player)
+                    row, col = level4(first,board,current_player)
                     board[row][col] = current_player
                     winner = check_winner(board)
                     if winner:
@@ -673,7 +655,7 @@ while True:
                     if event.key == pygame.K_s:
                         show_score = not show_score
                     if event.key == pygame.K_c and not game_over:
-                        row, col = level5(first,board,current_player)
+                        row, col = level4(first,board,current_player)
                         board[row][col] = current_player
                         winner = check_winner(board)
                         if winner:
