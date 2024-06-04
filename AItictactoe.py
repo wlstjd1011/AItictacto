@@ -97,7 +97,6 @@ def train_noob():
     return weight
 
 level2weight=train_noob()
-print(level2weight)
 
 def level2(board):
     best_score = -1
