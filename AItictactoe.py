@@ -3,8 +3,8 @@ import sys
 import random
 import itertools
 
-randomplay=1000000
-reinforceplay=1000000
+randomplay=100000
+reinforceplay=100000
 
 board = [['' for _ in range(3)] for _ in range(3)]
 
@@ -214,7 +214,7 @@ def level4(first,board,current):
                 board[row][col] = ''  # 보드 상태 복원
     return best_move
 
-alpha=0.1
+alpha=0.2
 
 def playTTTself_play_reinforce(first, current, board, allboards, history=None):
     if history is None:
