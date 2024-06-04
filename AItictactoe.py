@@ -50,7 +50,9 @@ def normalization_weight(weight):
     return result_weight
 
 def average_weights(weight0, weight1):
-    average = [[(weight0[row][col] + weight1[row][col]) / 2 for col in range(3)] for row in range(3)]
+    nweight0=normalization_weight(weight0)
+    nweight1=normalization_weight(weight1)
+    average = [[(nweight0[row][col] + nweight1[row][col]) / 2 for col in range(3)] for row in range(3)]
     return average
 
 def playTTTself_noob(weight0, weight1,current,board):
@@ -97,6 +99,7 @@ def train_noob():
     return weight
 
 level2weight=train_noob()
+
 
 def level2(board):
     best_score = -1
@@ -152,7 +155,7 @@ def playTTTself_play_random(first, weight, current, board, allboards, history=No
             next_player = 'X' if current == 'O' else 'O'
             playTTTself_play_random(first, weight, next_player, board, allboards, history)
     else:
-        return
+        return 
 
 def update_allboards(first,history, winner,allboards):
     # tictactoe의 모든 단계의 보드 상태를 추적하여 allboards 값을 업데이트
@@ -202,7 +205,7 @@ alpha=0.2
 def playTTTself_play_reinforce(first, current, board, allboards, history=None):
     if history is None:
         history = [(('','',''),('','',''),('','',''))]
-    best_score = -1 if current == 'O' else 1
+    best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
 
     if(random.uniform(0,1)<alpha):
