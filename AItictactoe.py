@@ -173,8 +173,6 @@ def train_play_random(allboards):
         playTTTself_play_random('O',weight, 'O', board,allboards)
         board = [['' for _ in range(3)] for _ in range(3)]
         playTTTself_play_random('X',weight, 'X', board,allboards)
-        if(i%10000==0):
-            print(i)
 
 train_play_random(level3boards)
 
@@ -254,8 +252,6 @@ def train_play_reinforce(allboards):
         playTTTself_play_reinforce('O', 'O', board,allboards)
         board = [['' for _ in range(3)] for _ in range(3)]
         playTTTself_play_reinforce('X', 'X', board,allboards)
-        if(i%10000==0):
-            print(i)
 
 train_play_reinforce(level4boards)
 
