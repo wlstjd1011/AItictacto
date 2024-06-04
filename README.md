@@ -69,12 +69,12 @@ pip3 install pygame
    ```
    docker run -it watermelon:0.1 /bin/bash
    ```
-4. workspace 폴더 내에서 게임을 실행한다. (검증x)
+4. 게임을 실행한다. (검증x)
    ```
    python AItictactoe.py
    ```
 
-wsl2환경에서는 pygame창이 바로 나오지 않지만, 다른 부분이 정상적으로 실행되는 것을 보면 보통의 Linux환경에서는 정상적으로 실행될 것으로 예상
+wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에서 다른 부분이 정상적으로 실행되는 것을 보면 보통의 Linux환경에서는 정상적으로 실행될 것으로 예상
 
 ## 사용 방법
 
