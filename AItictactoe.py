@@ -179,7 +179,6 @@ def train_play_random(allboards):
 train_play_random(level3boards)
 
 def level3(first,board,current):
-    global level3boards
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
         # 가능한 모든 움직임을 시뮬레이션하여 최선의 움직임을 찾음
@@ -200,7 +199,6 @@ def level3(first,board,current):
                 board[row][col] = ''  # 보드 상태 복원
     return best_move
 
-alpha=0.2
 
 def playTTTself_play_reinforce(first, current, board, allboards, history=None):
     if history is None:
@@ -208,7 +206,7 @@ def playTTTself_play_reinforce(first, current, board, allboards, history=None):
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
 
-    if(random.uniform(0,1)<alpha):
+    if(random.uniform(0,1)<0.2):
         available_positions = [(i, j) for i in range(3) for j in range(3) if board[i][j] == '']
     # 가능한 위치 중에서 랜덤하게 선택합니다.
         best_move = random.choice(available_positions)
@@ -258,7 +256,6 @@ def train_play_reinforce(allboards):
 train_play_reinforce(level4boards)
 
 def level4(first,board,current):
-    global level3boards
     best_score = float('-inf') if current == 'O' else float('inf')
     best_move = None
         # 가능한 모든 움직임을 시뮬레이션하여 최선의 움직임을 찾음

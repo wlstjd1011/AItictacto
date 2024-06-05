@@ -17,4 +17,4 @@ RUN pip install --no-cache-dir pygame==2.5.2
 
 COPY . .
 
-CMD ["python", "AItictactoe.py"]
+CMD ["python", "main.py"]

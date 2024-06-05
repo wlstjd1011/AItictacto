@@ -56,7 +56,7 @@
 pip3 install pygame
 ```
 
-5. 재부팅 이후 python3 AItictactoe.py를 실행하면 게임 창이 뜨면서 실행됨.
+5. 재부팅 이후 python3 main.py를 실행하면 게임 창이 뜨면서 실행됨.
 
 ### Linux
 
@@ -71,7 +71,7 @@ pip3 install pygame
    ```
 4. 게임을 실행한다. (검증x)
    ```
-   python AItictactoe.py
+   python main.py
    ```
 
 wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에서 다른 부분이 정상적으로 실행되는 것을 보면 보통의 Linux환경에서는 정상적으로 실행될 것으로 예상
@@ -94,6 +94,7 @@ wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에
 - `Q` 키를 눌러 게임을 종료합니다.
 
 # 코드 설명(AItictactoe.py)
+
 
 #### randomplay, reinforceplay
 
