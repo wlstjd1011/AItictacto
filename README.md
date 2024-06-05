@@ -80,7 +80,7 @@ wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에
 
 1. 게임 스크립트를 실행합니다:
     ```sh
-    python AItictactoe.py
+    python main.py
     ```
 2. 화면에 표시된 지시에 따라 플레이어 수, 선공 여부, AI 레벨 등을 선택합니다.
 
@@ -95,31 +95,51 @@ wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에
 
 # 코드 설명(AItictactoe.py)
 
+## main.py
 
-#### randomplay, reinforceplay
+  - Description : 메인 파일. 게임 진행에 사용
+    1. 메인 루프인 while문은 길지만, B버튼으로 초기 상태로 되돌아 왔을 때를 고려한 K_b밑의 루프는 앞부분의 복사본
 
-각각 level3, level4학습을 위해 스스로 게임을 진행하는 횟수
+## interface.py
 
-### make_move
+  - Description : 게임에서 나타나는 interface
+
+ ### draw_board
+
+- Description : 게임 진행 중의 화면.
+  1. 게임 진행 중의 게임판
+  2. 게임 중 사용할 수 있는 단축키(오른쪽)
+  3. AI가 평가하는 현재 상황(현재 상황에서 승, 패, 무)
+
+ ### selectfirst, selectlevel, selectplayer
+
+- Description : 게임의 모드 선택
+
+## game.py
+
+- Description : 게임 진행 중의 화면.
+  1. Tic-Tac-Toe 게임 진행을 위한 함수들
+  2. 게임은 유저가 사용할 때, 컴퓨터 스스로 학습할 때 진행
+
+ ### make_move
 
 - Description : tictactoe에서 수를 놓음
   1. 현재 board 상태, 다음 수를 놓을 차례('O'또는 'X'), 수를 놓을 위치(row, col)에 따라 수를 놓음
 
-### check_winner
+ ### check_winner
 
 - Description : 승자를 확인
   1. 현재 보드 상태에서 승자가 있는지 확인
   2. 승자가 있다면 승자 return 없다면 None을 return
 
-### is_board_full
+ ### is_board_full
 
 - Description : 현재 보드가 가득 찼는지 확인
   1. 가득 찼다면 True return, 아니라면 False return
 
- ### level1
+## train.py
 
-- Description : 게임의 level1에서 컴퓨터가 다음 수를 놓는 방식
-  1. 빈 자리 중 아무거나 선택
+- Description : AI를 training하는 데 필요한 함수들
 
  ### create_random_weight
 
@@ -150,14 +170,6 @@ wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에
 - Description : level2의 컴퓨터가 학습
   1. 1024=2^10개의 weight그룹 10개, 총 10240개의 weight가 playTTTself_noob을 순서를 바꿔가며 게임 진행
   2. 최종적으로 남은 10개의 weight를 평균내 level2의 컴퓨터가 우선적으로 수를 놓을 weight 도출
-
-
-
- ### level2
-
-- Description : level2의 컴퓨터를 상대로 선택했을때, 컴퓨터가 train_noob에서 구한 weight에 따라 행동
-  1. print를 추가해 직접 weight를 확인하거나 level2 AI 상대로 게임을 진행하면 가운데, 모서리, 변 순서로 중요도가 높다는 것을 확인할 수 있음
-  2. AI가 지점에 따른 중요도는 학습했지만, 상황에 따라 행동하지는 못함
 
  ### generate_allboards_boards
 
@@ -192,14 +204,6 @@ wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에
 - Description : level3를 위해 playTTTself_play_random으로 학습
   1. 'O', 'X'가 각각 선공으로 randomplay번 진행(기본 100000)
 
- ### level3
-
-- Description : level3의 컴퓨터를 상대로 선택했을때, 컴퓨터가 level3boards에 저장된 정보를 기반으로 행동
-  1. 컴퓨터는 고를 수 있는 선택지 중 자신의 승이 많아지고 패가 적어지게 선택
-  2. 다음 수로 승리하는 경우는 승리는 모든 경우, 패는 0이 되므로 승리할 기회를 놓치지 않음
-  3. 학습할 때 무작위로 학습했기 때문에, 상대가 무작위로 움직일 것으로 예상하고 선택하는 문제가 있음
-
-
  ### playTTTself_play_reinforce
 
 - Description : Tic-Tac-Toe를 플레이하며 강화학습
@@ -214,6 +218,31 @@ wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에
 - Description : level4를 위해 playTTTself_play_reinforce으로 학습
   1. 'O', 'X'가 각각 선공으로 reinforceplay번 진행(기본 100000)
 
+ #### randomplay, reinforceplay
+
+  각각 level3, level4학습을 위해 스스로 게임을 진행하는 횟수
+
+## level.py
+
+ - Description : 학습된 데이터를 이용해서 level에 따라 컴퓨터가 수를 선택하는 함수
+ ### level1
+
+- Description : 게임의 level1에서 컴퓨터가 다음 수를 놓는 방식
+  1. 빈 자리 중 아무거나 선택
+
+ ### level2
+
+- Description : level2의 컴퓨터를 상대로 선택했을때, 컴퓨터가 train_noob에서 구한 weight에 따라 행동
+  1. print를 추가해 직접 weight를 확인하거나 level2 AI 상대로 게임을 진행하면 가운데, 모서리, 변 순서로 중요도가 높다는 것을 확인할 수 있음
+  2. AI가 지점에 따른 중요도는 학습했지만, 상황에 따라 행동하지는 못함
+
+ ### level3
+
+- Description : level3의 컴퓨터를 상대로 선택했을때, 컴퓨터가 level3boards에 저장된 정보를 기반으로 행동
+  1. 컴퓨터는 고를 수 있는 선택지 중 자신의 승이 많아지고 패가 적어지게 선택
+  2. 다음 수로 승리하는 경우는 승리는 모든 경우, 패는 0이 되므로 승리할 기회를 놓치지 않음
+  3. 학습할 때 무작위로 학습했기 때문에, 상대가 무작위로 움직일 것으로 예상하고 선택하는 문제가 있음
+
 ### level4
 
 - Description : level4의 컴퓨터를 상대로 선택했을때, 컴퓨터가 level4boards에 저장된 정보를 기반으로 행동
@@ -224,22 +253,3 @@ wsl2환경에서는 pygame창이 바로 나오지 않지만, 디버깅 과정에
   5. 보통 학습에서 100000 중 약 54%가 무승부, 37%가 선공 승리, 9%가 선공 패배
   6. 10000번 중에서는 32%정도가 무승부, 50000번은 53%, 200000에서는 54.5%인 것을 보면 100000 또는 그보다 약간 더 큰 수가 적절
   7. 게임에서 보여주는 AI의 분석, 선택은 level4 기반
-
-### line 288~315
-
-- Description : pygame 기본 설정
-  
-### draw_board
-
-- Description : 게임 진행 중의 화면.
-  1. 게임 진행 중의 게임판
-  2. 게임 중 사용할 수 있는 단축키(오른쪽)
-  3. AI가 평가하는 현재 상황(현재 상황에서 승, 패, 무)
-
-### selectfirst, selectlevel, selectplayer
-
-- Description : 게임의 모드 선택
-
-### 444~729 while loop
-
-- Description : 게임 진행.
