@@ -33,6 +33,8 @@ def broadcast(game_id, message):
 
 def handle_client(client, room_id):
     global waiting_rooms, games
+    # room_id = None
+    # client_name = None
 
     try:
         while True:
@@ -43,7 +45,7 @@ def handle_client(client, room_id):
 
             # Handle game moves
             game_id, play_turn, board = eval(message)
-            game = games[game_id]                 
+            game = games[game_id]  
             if game[3] == play_turn:
                 game_temp = (game[0],game[1],board,'X' if game[3] == 'O' else 'O')
                 games[game_id] = game_temp
