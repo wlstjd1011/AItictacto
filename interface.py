@@ -1,5 +1,6 @@
 import pygame
 from train import get_level4boards
+import random
 
 level4boards=get_level4boards()
 
@@ -22,7 +23,7 @@ pygame.display.set_caption('Tic Tac Toe')
 font = pygame.font.Font(None, 200)
 small_font = pygame.font.Font(None, 40)
 
-def draw_board(board, show_score, first):
+def draw_board(board, show_score, first, show_turn, your_turn):
     screen.fill(WHITE)
     # 수직선 그리기
     pygame.draw.line(screen, BLACK, (cell_size, 0), (cell_size, size), 3)
@@ -41,6 +42,21 @@ def draw_board(board, show_score, first):
     screen.blit(restart_message_display, (size + 20, 300))
     chance_message_display = small_font.render("'C' AI moves for you", True, BLACK)
     screen.blit(chance_message_display, (size + 20, 340))
+
+    ##########################################
+    ################ PHASE 2 #################
+    ##########################################
+    if show_turn:   # display whose turn it is
+        turn_font = pygame.font.Font(None, 70)
+        if your_turn:
+            whose_turn_display = turn_font.render("YOUR TURN", True, RED)
+        else:
+            whose_turn_display = turn_font.render("ENEMY TURN", True, BLACK)
+        screen.blit(whose_turn_display, (size + 20, 420))
+    ##########################################
+    ################ PHASE 2 #################
+    ##########################################
+
     if show_score:
         board_tuple = tuple(tuple(row) for row in board)  # 현재 보드 상태를 튜플로 변환
         Owincase=level4boards[(board_tuple,first)][0]
@@ -68,7 +84,28 @@ def draw_board(board, show_score, first):
     score_message_display = small_font.render("'S' to show/hide score.", True, BLACK)
     screen.blit(score_message_display, (size + 20, 260))
 
+##########################################
+################ PHASE 2 #################
+##########################################
+# show replay
+def draw_replay(board):
+    screen.fill(WHITE)
+    # 수직선 그리기
+    pygame.draw.line(screen, BLACK, (cell_size, 0), (cell_size, size), 3)
+    pygame.draw.line(screen, BLACK, (2 * cell_size, 0), (2 * cell_size, size), 3)
+    # 수평선 그리기
+    pygame.draw.line(screen, BLACK, (0, cell_size), (size, cell_size), 3)
+    pygame.draw.line(screen, BLACK, (0, 2 * cell_size), (size, 2 * cell_size), 3)
+    pygame.draw.line(screen, BLACK, (size, 0), (size, size), 3)
 
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] != '':
+                text = font.render(board[row][col], True, RED if board[row][col] == 'X' else BLUE)
+                screen.blit(text, (col * cell_size + 30, row * cell_size + 10))
+##########################################
+################ PHASE 2 #################
+##########################################
 
 def selectfirst():
     screen.fill(WHITE)
@@ -112,16 +149,18 @@ def selectlevel():
     comp_rect = comp_text.get_rect(center=(size // 2, 450))
     screen.blit(comp_text, comp_rect)
 
-
-
 def selectplayer():
     screen.fill(WHITE)
     # 게임 제목 표시
     title_text = small_font.render("Tic Tac Toe", True, BLACK)
     title_rect = title_text.get_rect(center=(size // 2, 100))
     screen.blit(title_text, title_rect)
-    # 플레이어 수를 묻는 질문
-    who_first_text = small_font.render("How many players?", True, BLACK)
+    ################ PHASE 2 #################
+    # # 플레이어 수를 묻는 질문
+    # who_first_text = small_font.render("How many players?", True, BLACK)
+    # Game mode 선택 질문
+    who_first_text = small_font.render("Select Game Mode :", True, BLACK)
+
     who_first_rect = who_first_text.get_rect(center=(size // 2, 200))
     screen.blit(who_first_text, who_first_rect)
     # 1명 또는 2명
@@ -131,3 +170,130 @@ def selectplayer():
     comp_text = small_font.render("Press 2 for 2Players", True, BLACK)
     comp_rect = comp_text.get_rect(center=(size // 2, 350))
     screen.blit(comp_text, comp_rect)
+    ################ PHASE 2 #################
+    onlin_text = small_font.render("Press 3 for Online 2Players", True, BLACK)
+    onlin_rect = onlin_text.get_rect(center=(size // 2, 400))
+    screen.blit(onlin_text, onlin_rect)
+    # recorded games
+    regame_text = small_font.render("Press 4 for recorded games", True, BLACK)
+    regame_rect = regame_text.get_rect(center=(size // 2, 450))
+    screen.blit(regame_text, regame_rect)
+
+##########################################
+################ PHASE 2 #################
+##########################################
+def inputname(player_name):
+    names = ['Thor','Captain America','Iron Man','Black Widow','Scarlet Witch',
+    'Black Panther','Hawkeye','Quicksilver','Vision','Ant-Man','Captain Marvel',
+    'Loki','Wolverine','Doctor Strange','Winter Soldier','Wasp','Hulk','Mantis',
+    'Falcon','War Machine','Moon Knight','Spider-Man','Valkyrie','Storm',
+    'Deadpool','Yondu','Star-Lord','Gamora','Rocket','Drax','Groot','Nebula',
+    'Cyclops','Iceman','Beast','Phoenix','Rogue','Professor X','Colossus',
+    'Nightcrawler','Beast','Kitty Pride','Angel','Havok','Magneto','Mystique',
+    'Toad','Chipper','Charlie','Merlin','Wolfman','Cougar','Hollywood','Slider',
+    'Jester','Stinger','Sundown','Goose','Viper','Maverick','Cyclone','Warlock',
+    'Hangman','Fanboy','Payback','Hammer','Coyote','Omaha','Halo']
+
+    random.shuffle(names)
+    if player_name == '':
+        player_name = names[0]
+
+    screen.fill(WHITE)
+    # 게임 제목 표시
+    title_text = small_font.render("Tic Tac Toe", True, BLACK)
+    title_rect = title_text.get_rect(center=(size // 2, 100))
+    screen.blit(title_text, title_rect)
+    # 플레이어 이름 입력
+    player_name_text = small_font.render("Player name", True, BLACK)
+    player_name_rect = player_name_text.get_rect(center=(size // 2, 200))
+    screen.blit(player_name_text, player_name_rect)
+    # Input box
+    input_name_text = small_font.render(player_name, True, BLACK)
+    input_name_rect = input_name_text.get_rect(center=(size // 2, 250))
+    screen.blit(input_name_text, input_name_rect)
+    # Go to game room
+    goto_text = small_font.render("Press Return to enter the game room ...", True, BLACK)
+    goto_rect = goto_text.get_rect(center=(size // 2, 400))
+    screen.blit(goto_text, goto_rect)
+
+    return player_name
+
+def gameroom(player1_name, player2_name):
+    screen.fill(WHITE)
+    # 게임 제목 표시
+    title_text = small_font.render("Tic Tac Toe", True, BLACK)
+    title_rect = title_text.get_rect(center=(size // 2, 100))
+    screen.blit(title_text, title_rect)
+    # 플레이어1
+    player1_text = small_font.render("Player1", True, BLACK)
+    player1_rect = player1_text.get_rect(center=(size // 4, 200))
+    screen.blit(player1_text, player1_rect)
+    player1_name_text = small_font.render(player1_name, True, BLACK)
+    player1_name_rect = player1_name_text.get_rect(center=(size // 4, 250))
+    screen.blit(player1_name_text, player1_name_rect)
+    if player2_name != '' and player2_name is not None:
+        # 플레이어2
+        player2_text = small_font.render("Player2", True, BLACK)
+        player2_rect = player2_text.get_rect(center=(size // 4 * 3, 200))
+        screen.blit(player2_text, player2_rect)
+        player2_name_text = small_font.render(player2_name, True, BLACK)
+        player2_name_rect = player2_name_text.get_rect(center=(size // 4 * 3, 250))
+        screen.blit(player2_name_text, player2_name_rect)
+        msg = "Starting game ..."
+    else:
+        msg = "Waiting for another player ..."        
+        # Go to main menu
+        home_text = small_font.render("Press B to return to start screen", True, BLACK)
+        home_rect = home_text.get_rect(center=(size // 2, 450))
+        screen.blit(home_text, home_rect)
+
+    # Waiting Or Start
+    msg_text = small_font.render(msg, True, BLACK)
+    msg_rect = msg_text.get_rect(center=(size // 2, 400))
+    screen.blit(msg_text, msg_rect)
+
+def gamelist(games):
+    screen.fill(WHITE)
+    # 게임 제목 표시
+    title_text = small_font.render("Tic Tac Toe", True, BLACK)
+    title_rect = title_text.get_rect(center=(size // 2, 100))
+    screen.blit(title_text, title_rect)
+    
+    if not games:
+        nodata_text = small_font.render("No Data Found", True, BLACK)
+        nodata_rect = nodata_text.get_rect(center=(size // 2, 200))
+        screen.blit(nodata_text, nodata_rect)
+    else:
+        for i, game in enumerate(games):
+            # num
+            col_text1 = small_font.render(f"{i+1}", True, BLACK)
+            col_post1 = (50, 150 + i * 40)
+            screen.blit(col_text1, col_post1)
+            # game type
+            col_text2 = small_font.render(f"{game[1]}", True, BLACK)
+            col_post2 = (100, 150 + i * 40)
+            screen.blit(col_text2, col_post2)
+            # game date
+            col_text3 = small_font.render(f"{game[2]}", True, BLACK)
+            col_post3 = (350, 150 + i * 40)
+            screen.blit(col_text3, col_post3)
+
+    # Go to game room
+    if games:   # Display only if there are items
+        goto_text = small_font.render("Press the number to replay it", True, BLACK)
+        goto_rect = goto_text.get_rect(center=(size // 2, 410))
+        screen.blit(goto_text, goto_rect)
+
+    goto_text2 = small_font.render("Press N to go to next page", True, BLACK)
+    goto_rect2 = goto_text2.get_rect(center=(size // 2, 450))
+    screen.blit(goto_text2, goto_rect2)
+    goto_text2 = small_font.render("Press P to go to previous page", True, BLACK)
+    goto_rect2 = goto_text2.get_rect(center=(size // 2, 490))
+    screen.blit(goto_text2, goto_rect2)
+    # Go to main menu
+    home_text = small_font.render("Press B to return to start screen", True, BLACK)
+    home_rect = home_text.get_rect(center=(size // 2, 530))
+    screen.blit(home_text, home_rect)
+##########################################
+################ PHASE 2 #################
+##########################################
